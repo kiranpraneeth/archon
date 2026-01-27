@@ -9,7 +9,7 @@
  * and type definitions.
  */
 
-import type { Agent, AgentCapabilities, ReviewResult } from '../../core/types.js';
+import type { Agent, AgentCapabilities, FeedbackItem, ReviewResult } from '../../core/types.js';
 
 /**
  * Code Review Agent configuration
@@ -79,12 +79,6 @@ export function createReviewAgent(
  * This is used when outputting review results in a human-readable format.
  */
 export function formatReviewAsMarkdown(review: ReviewResult): string {
-  const severityEmoji = {
-    blocker: '🔴',
-    suggestion: '🟡',
-    nitpick: '🟢',
-  };
-
   const summaryText = {
     approve: '✅ Approve',
     request_changes: '🔄 Request Changes',
@@ -153,7 +147,7 @@ export function formatReviewAsMarkdown(review: ReviewResult): string {
   return lines.join('\n');
 }
 
-function formatFeedbackItem(item: import('../../core/types.js').FeedbackItem): string {
+function formatFeedbackItem(item: FeedbackItem): string {
   const location = item.line ? `${item.file}:${item.line}` : item.file;
   let result = `- **[${location}]**: ${item.message}`;
 
