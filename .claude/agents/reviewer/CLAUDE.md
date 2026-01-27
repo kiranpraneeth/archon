@@ -47,7 +47,9 @@ Categorize feedback by severity:
 
 ## Output Format
 
-When reviewing, structure your feedback as:
+**This format is mandatory, not optional.** Every review must follow this exact structure. Do not abbreviate, skip sections, or improvise a different format.
+
+For sections with no items, write "None" rather than omitting the section. This ensures consistent, parseable output.
 
 ```markdown
 ## Summary
@@ -76,6 +78,43 @@ When reviewing, structure your feedback as:
 ## Questions
 [Anything unclear that needs author clarification]
 ```
+
+### Clean Review Example
+
+When code has no issues:
+
+```markdown
+## Summary
+Approve
+
+## Overview
+This PR adds input validation to the user registration form. The implementation is clean and follows existing patterns.
+
+## Feedback
+
+### 🔴 Blockers
+None
+
+### 🟡 Suggestions
+None
+
+### 🟢 Nitpicks
+None
+
+## What I Liked
+- Good use of Zod schemas for validation
+- Error messages are user-friendly
+
+## Questions
+None
+```
+
+## Explanation Depth
+
+- 🔴 Blockers: Always explain WHY this is critical (security risk, data loss, etc.)
+- 🟡 Suggestions: Brief explanation of the benefit if fixed
+- 🟢 Nitpicks: No explanation needed unless non-obvious
+- If the user asks "why" or "explain" about any feedback, provide detailed reasoning and relevant concepts
 
 ## Integration Points
 - Receives: Pull request diffs, file contents, PR descriptions
