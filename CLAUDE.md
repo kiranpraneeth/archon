@@ -10,12 +10,14 @@ This is a learning-in-public project by Kiran Gamini, an engineering leader buil
 
 ## Architecture Philosophy
 
-### Agentic Team Model
-We model AI agents as specialized team members, each with:
-- Clear responsibilities
-- Defined interfaces with other agents
-- Quality standards they must meet
-- Escalation paths to human oversight
+### Agents as Automation, Not Replacement
+AI agents handle the repetitive, time-consuming tasks that slow engineers down — freeing humans to focus on architecture, product decisions, and creative problem-solving. Agents are tools that augment engineering teams, not replacements for engineers.
+
+Each agent has:
+- A narrow, well-defined scope (one job, done well)
+- Clear boundaries on what it can and cannot do
+- Human oversight for anything consequential
+- Transparent reasoning so humans can verify and override
 
 ### The Agent Roster
 | Agent | Responsibility | Status |
