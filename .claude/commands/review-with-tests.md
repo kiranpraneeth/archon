@@ -35,57 +35,24 @@ Wait for the subagent to complete before proceeding.
 
 ### Phase 3: Combined Report
 
-Output a unified report in this exact format:
+The detailed outputs from Phase 1 and Phase 2 are already shown above. The final report should **synthesize, not duplicate**.
+
+Output a concise summary in this format:
 
 ```markdown
-# Review + Coverage Report
+# Combined Recommendation
 
-## Code Review
+## Summary
 
-### Summary
-[Approve / Request Changes / Needs Discussion]
+| Aspect | Status | Notes |
+|--------|--------|-------|
+| Code Review | [Approve/Request Changes/Needs Discussion] | [1-line summary of key finding] |
+| Test Coverage | [✅ Adequate / ⚠️ Gaps / ❌ Missing] | [1-line summary of coverage state] |
 
-### Overview
-[2-3 sentence summary from Reviewer]
+## Overall: [✅ Ready to Merge / ⚠️ Merge with Caveats / ❌ Not Ready]
 
-### Feedback
-[Blockers, Suggestions, Nitpicks from Reviewer — use standard format]
-
-### What I Liked
-[Positives from Reviewer]
-
----
-
-## Test Coverage Analysis
-
-### Coverage Status
-[✅ Adequate / ⚠️ Gaps Found / ❌ Missing Tests]
-
-### Files Analyzed
-| File | Test File | Status |
-|------|-----------|--------|
-| [source] | [test file or "Missing"] | [✅/⚠️/❌] |
-
-### Coverage Gaps
-[List of untested functions, missing edge cases, etc.]
-
-### Recommendations
-[Specific tests that should be added]
-
----
-
-## Combined Recommendation
-
-### Overall Status
-[✅ Ready to Merge / ⚠️ Merge with Caveats / ❌ Not Ready]
-
-### Checklist
-- [ ] Code review: [Approved / Has blockers]
-- [ ] Test coverage: [Adequate / Has gaps]
-- [ ] Human review required: [Yes/No — reason if yes]
-
-### Action Items
-[Numbered list of what needs to happen before merge]
+## Action Items
+[Numbered list — only if there are blockers or required changes. Write "None" if ready to merge.]
 ```
 
 ## Decision Logic
