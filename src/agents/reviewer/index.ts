@@ -33,6 +33,7 @@ export type ReviewerConfig = {
   minSeverity: "blocker" | "suggestion" | "nitpick";
 };
 
+/** Default configuration for the Code Review Agent */
 const DEFAULT_CONFIG: ReviewerConfig = {
   maxFilesPerReview: 20,
   excludePatterns: [
