@@ -42,8 +42,8 @@ Every pattern here is battle-tested on the [Archon platform](../README.md). Noth
 | Pattern | Problem It Solves | Status |
 |---------|-------------------|--------|
 | [Hooks as Quality Gates](./patterns/hooks-quality-gates.md) | Automated policies via PreToolUse/PostToolUse | ✅ Done |
+| [Subagent Orchestration](./patterns/subagent-orchestration.md) | Composing specialized agents into workflows | ✅ Done |
 | [Context Hierarchy](./patterns/context-hierarchy.md) | How to structure CLAUDE.md files | 📋 Planned |
-| [Agent Delegation](./patterns/agent-delegation.md) | When and how to use subagents | 📋 Planned |
 | [Human Checkpoints](./patterns/human-checkpoints.md) | Designing review gates | 📋 Planned |
 
 ## How to Use This Playbook
