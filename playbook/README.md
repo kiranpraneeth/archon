@@ -43,6 +43,7 @@ Every pattern here is battle-tested on the [Archon platform](../README.md). Noth
 |---------|-------------------|--------|
 | [Hooks as Quality Gates](./patterns/hooks-quality-gates.md) | Automated policies via PreToolUse/PostToolUse | ✅ Done |
 | [Subagent Orchestration](./patterns/subagent-orchestration.md) | Composing specialized agents into workflows | ✅ Done |
+| [Autonomous Agents](./patterns/autonomous-agents.md) | Running agents in CI/CD without interaction | ✅ Done |
 | [Context Hierarchy](./patterns/context-hierarchy.md) | How to structure CLAUDE.md files | 📋 Planned |
 | [Human Checkpoints](./patterns/human-checkpoints.md) | Designing review gates | 📋 Planned |
 
