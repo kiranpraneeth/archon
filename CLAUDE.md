@@ -22,9 +22,9 @@ Each agent has:
 ### The Agent Roster
 | Agent | Responsibility | Status |
 |-------|---------------|--------|
-| Reviewer | Code review, PR feedback | 🔨 Building |
-| Tester | Test generation, coverage analysis | 📋 Planned |
-| Documenter | Docs sync, README maintenance | 📋 Planned |
+| Reviewer | Code review, PR feedback | ✅ Active |
+| Tester | Test generation, coverage analysis | ✅ Active |
+| Documenter | Docs sync, README maintenance | 🔨 Building |
 | Onboarder | Codebase Q&A, context provision | 📋 Planned |
 
 ## Tech Stack
