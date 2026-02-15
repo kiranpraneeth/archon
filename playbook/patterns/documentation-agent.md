@@ -57,23 +57,25 @@ Developers building with or extending Archon agents.
 2. Consider src/core/README.md — one paragraph on type contracts
 ```
 
-## The Gap: Manual Invocation
+## Closing the Gap: Automated Feedback
 
-Currently, `/docs` requires a human to run it. The agent context and command exist, but there's no automation.
+The `/docs` command is manual, but we've added a PostToolUse hook that provides automatic feedback.
 
-**Opportunities:**
-- **PostToolUse hook**: Run audit after file edits, warn if docs need updating
+**Implemented:**
+- **PostToolUse hook** (`.claude/hooks/docs-check.sh`): After editing `.ts` files, warns if exports lack JSDoc. Advisory only — doesn't block.
+
+**Remaining opportunities:**
 - **CI check**: Fail PRs that add exports without JSDoc
 - **Pre-commit**: Block commits with undocumented public APIs
 
-Example hook concept:
-```bash
-# .claude/hooks/docs-check.sh (PostToolUse)
-# After Edit/Write on .ts files, check if exports lack JSDoc
-# Output warning to stderr if gaps found
+The hook output:
+```
+📝 Documentation gap in types.ts:
+   - L36: FeedbackSeverity (missing JSDoc)
+   Run '/docs src/core/types.ts' to generate documentation.
 ```
 
-This mirrors the lint/format pattern — enforce documentation as a quality gate.
+This mirrors the lint/format pattern — documentation feedback as part of the edit loop.
 
 ## Lesson Learned
 
@@ -110,5 +112,5 @@ We have:
 - [x] Agent context defined
 - [x] Command with three modes
 - [x] Audit output format specified
-- [ ] PostToolUse hook for auto-checking
+- [x] PostToolUse hook for auto-checking (warns, doesn't block)
 - [ ] CI integration for PR validation
