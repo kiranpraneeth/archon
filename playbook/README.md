@@ -4,7 +4,7 @@
 
 ## What This Is
 
-This playbook documents my journey from traditional engineering management to **agentic engineering management** — orchestrating both human engineers and AI agents to build production systems.
+This playbook documents the journey from traditional engineering management to **agentic engineering management** — orchestrating both human engineers and AI agents to build production systems.
 
 Every pattern here is battle-tested on the [Archon platform](../README.md). Nothing is theoretical.
 
@@ -35,7 +35,8 @@ Every pattern here is battle-tested on the [Archon platform](../README.md). Noth
 
 | Week | Topic | Key Learning |
 |------|-------|--------------|
-| [Week 1](./insights/week-01-mental-model.md) | The Agentic Manager Mental Model | *Coming soon* |
+| [Week 1: Mental Model](./insights/week-01-mental-model.md) | The Agentic Manager Mental Model | Agents need onboarding like humans |
+| [Week 1: Feedback Loop](./insights/week-01-agent-feedback-loop.md) | Agent Feedback Loops | Iterate on prompts like code |
 
 ### Patterns (Reusable Approaches)
 
@@ -44,14 +45,16 @@ Every pattern here is battle-tested on the [Archon platform](../README.md). Noth
 | [Hooks as Quality Gates](./patterns/hooks-quality-gates.md) | Automated policies via PreToolUse/PostToolUse | ✅ Done |
 | [Subagent Orchestration](./patterns/subagent-orchestration.md) | Composing specialized agents into workflows | ✅ Done |
 | [Autonomous Agents](./patterns/autonomous-agents.md) | Running agents in CI/CD without interaction | ✅ Done |
-| [Context Hierarchy](./patterns/context-hierarchy.md) | How to structure CLAUDE.md files | 📋 Planned |
-| [Human Checkpoints](./patterns/human-checkpoints.md) | Designing review gates | 📋 Planned |
+| [Documentation Agent](./patterns/documentation-agent.md) | One command with multiple modes | ✅ Done |
+| [Test Generation Agent](./patterns/test-generation-agent.md) | Test behavior, not implementation | ✅ Done |
+| Context Hierarchy | How to structure CLAUDE.md files | 📋 Planned |
+| Human Checkpoints | Designing review gates | 📋 Planned |
 
 ## How to Use This Playbook
 
 **If you're new to agentic engineering:**
-1. Start with [Week 1](./insights/week-01-mental-model.md) for the mental model
-2. Review the [Context Hierarchy](./patterns/context-hierarchy.md) pattern
+1. Start with [Week 1: Mental Model](./insights/week-01-mental-model.md)
+2. Review the [Hooks as Quality Gates](./patterns/hooks-quality-gates.md) pattern
 3. Try applying it to your own project
 
 **If you're already building with AI agents:**
@@ -69,9 +72,8 @@ Every pattern here is battle-tested on the [Archon platform](../README.md). Noth
 
 ## Following Along
 
-This playbook grows weekly as the Archon platform develops:
+This playbook grows as the Archon platform develops:
 - ⭐ Star the repo to follow updates
-- 💼 [LinkedIn](https://linkedin.com) for executive-level insights
 - 🐛 Open issues for questions or suggestions
 
 ---
