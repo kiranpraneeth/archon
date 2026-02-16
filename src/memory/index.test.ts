@@ -120,7 +120,7 @@ describe("createMemoryProvider", () => {
         const results = await memory.search("CATS");
 
         expect(results).toHaveLength(1);
-        expect(results[0].content).toContain("cats");
+        expect(results[0]!.content).toContain("cats");
       });
 
       it("should filter by tags", async () => {
@@ -165,7 +165,7 @@ describe("createMemoryProvider", () => {
         const results = await memory.list({ tags: ["alpha", "beta"] });
 
         expect(results).toHaveLength(1);
-        expect(results[0].content).toBe("Memory C");
+        expect(results[0]!.content).toBe("Memory C");
       });
 
       it("should respect limit", async () => {
@@ -179,8 +179,8 @@ describe("createMemoryProvider", () => {
 
         // Verify timestamps are in descending order
         for (let i = 1; i < results.length; i++) {
-          expect(results[i - 1].timestamp.getTime()).toBeGreaterThanOrEqual(
-            results[i].timestamp.getTime(),
+          expect(results[i - 1]!.timestamp.getTime()).toBeGreaterThanOrEqual(
+            results[i]!.timestamp.getTime(),
           );
         }
       });
@@ -236,7 +236,7 @@ describe("createMemoryProvider", () => {
         const results = await newMemory.list();
 
         expect(results).toHaveLength(1);
-        expect(results[0].content).toBe("Persistent memory");
+        expect(results[0]!.content).toBe("Persistent memory");
       });
 
       it("should preserve timestamps across loads", async () => {
