@@ -374,3 +374,47 @@ Task: Build complete agentic SDLC platform
 - Follows existing code conventions
 
 ---
+
+## 2026-03-13 - T-008: Integration Tests Implementation
+
+### Task: Add integration tests
+
+**What was implemented:**
+- Created `tests/integration/` directory with comprehensive integration tests
+- Created `tests/integration/sdlc-workflow.test.ts` with 16 tests covering:
+  - Complete SDLC workflow execution from planning to monitoring
+  - Phase transitions with artifact collection
+  - Workflow failure and retry handling
+  - Max iteration exceeded scenarios
+  - Phase skipping configuration
+  - Checkpoint approval and rejection
+  - TDD workflow (test-first development)
+  - Hotfix workflow (expedited deployment)
+  - Workflow report generation
+- Created `tests/integration/agent-communication.test.ts` with 16 tests covering:
+  - All agent factory creation with consistent structure
+  - Capability flags per agent role
+  - Report formatting for all agents (reviewer, tester, planner, developer, deployer, monitor)
+  - Agent handoff chain: Planner -> Developer -> Tester -> Reviewer -> Deployer -> Monitor
+  - Agent-phase mapping
+  - Phase navigation (forward and backward)
+  - Checkpoint requirements
+  - Error handling across agents (planner failure, test failure retry, deployment rollback)
+
+**Files created:**
+- tests/integration/sdlc-workflow.test.ts
+- tests/integration/agent-communication.test.ts
+
+**Key design decisions:**
+- Integration tests focus on workflow orchestration and agent communication
+- Tests use real type schemas from agents (TechnicalSpec, CodeGenerationResult, BuildResult, etc.)
+- Handoff tests verify context and artifact passing between agents
+- Workflow tests verify state machine transitions and error recovery
+- Tests cover multi-agent workflow scenarios (TDD, hotfix)
+
+**Verification:**
+- All 546 tests pass (32 new integration tests + 514 existing)
+- TypeScript compiles with strict mode
+- Follows existing test patterns
+
+---
