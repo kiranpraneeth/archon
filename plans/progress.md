@@ -480,3 +480,70 @@ Task: Build complete agentic SDLC platform
 - Documentation follows existing conventions
 
 ---
+
+## 2026-03-14 - SPEC-002: Planning Agent TypeSpec Generation
+
+### Task: Update Planning Agent for TypeSpec generation
+
+**What was implemented:**
+- Created `src/agents/planner/spec-parser.ts` with:
+  - `detectSpecFormat()` to auto-detect input format (TypeSpec, OpenAPI, PRD, unknown)
+  - `parseTypeSpec()` to parse TypeSpec files into structured data (models, operations, servers)
+  - `parseOpenApi()` to parse OpenAPI specs (JSON/YAML) into same structure
+  - `parseSpec()` unified entry point for parsing any spec format
+  - Zod schemas for validation: ApiParameterSchema, ApiResponseSchema, ApiOperationSchema, ModelDefinitionSchema, ParsedSpecSchema
+  - Constants: SpecFormat, HttpMethod
+- Created `src/agents/planner/spec-generator.ts` with:
+  - `generateTypeSpec()` to generate TypeSpec from API specification input
+  - `generateTypeSpecFromTechSpec()` to generate TypeSpec from TechnicalSpec
+  - `validateTypeSpecSyntax()` for basic syntax validation
+  - `extractApiTasks()` to identify API-related tasks from planning output
+  - Zod schemas: EndpointDefinitionSchema, TypeDefinitionSchema, ApiSpecificationSchema
+  - TypeSpecGeneratorConfig type for customization
+- Created `src/agents/planner/spec-parser.test.ts` with 41 tests covering:
+  - Format detection (TypeSpec, OpenAPI, PRD, unknown)
+  - TypeSpec parsing (imports, namespaces, models, enums, servers, operations)
+  - OpenAPI parsing (JSON and YAML, servers, paths, schemas)
+  - Edge cases (empty content, complex types, multiple namespaces)
+- Created `src/agents/planner/spec-generator.test.ts` with 40 tests covering:
+  - TypeSpec generation (headers, models, enums, endpoints)
+  - Type conversion (TypeScript to TypeSpec types)
+  - Endpoint grouping by tags
+  - Syntax validation
+  - API task extraction
+- Updated `.claude/agents/planner/CLAUDE.md` with:
+  - Spec-Driven Development Mode section
+  - Input detection explanation
+  - TypeSpec generation guidelines
+  - Integration with Development Agent
+  - Programmatic API examples
+
+**Files created:**
+- src/agents/planner/spec-parser.ts
+- src/agents/planner/spec-parser.test.ts
+- src/agents/planner/spec-generator.ts
+- src/agents/planner/spec-generator.test.ts
+
+**Files modified:**
+- .claude/agents/planner/CLAUDE.md
+
+**Key design decisions:**
+- Hybrid mode: auto-detect PRD vs spec input based on content patterns
+- Parser extracts structured data that can be used for code generation
+- Generator produces valid TypeSpec with proper imports and decorators
+- Validation is lightweight (syntax check) - full validation uses TypeSpec compiler
+- Followed existing agent pattern with Zod schemas for type safety
+
+**Learnings:**
+- TypeScript strict mode requires careful handling of regex match groups (use optional chaining)
+- TypeSpec models can be empty (single line `model User {}`) - need special handling
+- @service decorator title can be on separate line - need to check multiple lines
+- Array element access in tests needs optional chaining for strict mode
+
+**Verification:**
+- All 627 tests pass (81 new spec-parser/generator tests + 546 existing)
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+- Follows existing code conventions
+
+---

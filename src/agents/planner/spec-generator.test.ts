@@ -1,0 +1,861 @@
+/**
+ * Tests for the Spec Generator
+ */
+
+import { describe, it, expect } from "vitest";
+import {
+  generateTypeSpec,
+  generateTypeSpecFromTechSpec,
+  validateTypeSpecSyntax,
+  extractApiTasks,
+  EndpointDefinitionSchema,
+  TypeDefinitionSchema,
+  ApiSpecificationSchema,
+  type EndpointDefinition,
+  type TypeDefinition,
+  type ApiSpecification,
+  type TypeSpecGeneratorConfig,
+} from "./spec-generator.js";
+import type { TechnicalSpec, TechnicalTask } from "./index.js";
+
+describe("Spec Generator", () => {
+  describe("Zod Schemas", () => {
+    describe("EndpointDefinitionSchema", () => {
+      it("should validate a valid endpoint", () => {
+        const endpoint: EndpointDefinition = {
+          name: "getUser",
+          method: "get",
+          path: "/users/{id}",
+          description: "Get a user by ID",
+          parameters: [
+            {
+              name: "id",
+              type: "string",
+              in: "path",
+              required: true,
+              description: "User ID",
+            },
+          ],
+          responses: [
+            { statusCode: 200, type: "User", description: "Success" },
+          ],
+          tags: ["Users"],
+        };
+
+        const result = EndpointDefinitionSchema.safeParse(endpoint);
+        expect(result.success).toBe(true);
+      });
+
+      it("should validate minimal endpoint", () => {
+        const endpoint: EndpointDefinition = {
+          name: "listItems",
+          method: "get",
+          path: "/items",
+        };
+
+        const result = EndpointDefinitionSchema.safeParse(endpoint);
+        expect(result.success).toBe(true);
+      });
+
+      it("should reject invalid method", () => {
+        const endpoint = {
+          name: "test",
+          method: "invalid",
+          path: "/test",
+        };
+
+        const result = EndpointDefinitionSchema.safeParse(endpoint);
+        expect(result.success).toBe(false);
+      });
+
+      it("should validate endpoint with request body", () => {
+        const endpoint: EndpointDefinition = {
+          name: "createUser",
+          method: "post",
+          path: "/users",
+          requestBody: {
+            type: "CreateUserRequest",
+            description: "User to create",
+          },
+        };
+
+        const result = EndpointDefinitionSchema.safeParse(endpoint);
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe("TypeDefinitionSchema", () => {
+      it("should validate a model type", () => {
+        const type: TypeDefinition = {
+          name: "User",
+          description: "A user object",
+          properties: [
+            { name: "id", type: "string", required: true },
+            {
+              name: "email",
+              type: "string",
+              required: true,
+              description: "Email address",
+            },
+            { name: "age", type: "number", required: false },
+          ],
+        };
+
+        const result = TypeDefinitionSchema.safeParse(type);
+        expect(result.success).toBe(true);
+      });
+
+      it("should validate an enum type", () => {
+        const type: TypeDefinition = {
+          name: "Status",
+          description: "User status",
+          properties: [],
+          isEnum: true,
+          enumValues: ["active", "inactive", "pending"],
+        };
+
+        const result = TypeDefinitionSchema.safeParse(type);
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe("ApiSpecificationSchema", () => {
+      it("should validate a complete API specification", () => {
+        const spec: ApiSpecification = {
+          title: "Test API",
+          description: "A test API",
+          version: "1.0.0",
+          namespace: "TestApi",
+          types: [
+            {
+              name: "User",
+              properties: [{ name: "id", type: "string", required: true }],
+            },
+          ],
+          endpoints: [{ name: "listUsers", method: "get", path: "/users" }],
+        };
+
+        const result = ApiSpecificationSchema.safeParse(spec);
+        expect(result.success).toBe(true);
+      });
+
+      it("should validate minimal specification", () => {
+        const spec: ApiSpecification = {
+          title: "Minimal API",
+          types: [],
+          endpoints: [],
+        };
+
+        const result = ApiSpecificationSchema.safeParse(spec);
+        expect(result.success).toBe(true);
+      });
+    });
+  });
+
+  describe("generateTypeSpec", () => {
+    it("should generate basic TypeSpec with headers", () => {
+      const spec: ApiSpecification = {
+        title: "Test API",
+        description: "A test API",
+        types: [],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("/**");
+      expect(result).toContain(" * Test API");
+      expect(result).toContain(" * A test API");
+      expect(result).toContain(" * Generated by Archon Planning Agent");
+      expect(result).toContain('import "@typespec/http";');
+      expect(result).toContain('import "@typespec/rest";');
+      expect(result).toContain('import "@typespec/openapi3";');
+      expect(result).toContain("using TypeSpec.Http;");
+      expect(result).toContain("using TypeSpec.Rest;");
+      expect(result).toContain("using OpenAPI;");
+    });
+
+    it("should include service decorator", () => {
+      const spec: ApiSpecification = {
+        title: "My Service",
+        types: [],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("@service({");
+      expect(result).toContain('title: "My Service"');
+    });
+
+    it("should include server decorators", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec, {
+        devServer: "http://localhost:3000",
+        prodServer: "https://api.prod.com",
+      });
+
+      expect(result).toContain(
+        '@server("https://api.prod.com", "Production server")',
+      );
+      expect(result).toContain(
+        '@server("http://localhost:3000", "Development server")',
+      );
+    });
+
+    it("should generate namespace", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        namespace: "MyApi",
+        types: [],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("namespace MyApi;");
+    });
+
+    it("should generate enum types", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [
+          {
+            name: "Status",
+            description: "User status",
+            properties: [],
+            isEnum: true,
+            enumValues: ["active", "inactive", "pending"],
+          },
+        ],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("/**");
+      expect(result).toContain(" * User status");
+      expect(result).toContain("enum Status {");
+      expect(result).toContain("  active,");
+      expect(result).toContain("  inactive,");
+      expect(result).toContain("  pending,");
+      expect(result).toContain("}");
+    });
+
+    it("should generate model types", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [
+          {
+            name: "User",
+            description: "A user object",
+            properties: [
+              {
+                name: "id",
+                type: "string",
+                required: true,
+                description: "Unique ID",
+              },
+              { name: "name", type: "string", required: true },
+              { name: "email", type: "string", required: false },
+            ],
+          },
+        ],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("/**");
+      expect(result).toContain(" * A user object");
+      expect(result).toContain("model User {");
+      expect(result).toContain("  /** Unique ID */");
+      expect(result).toContain("  id: string;");
+      expect(result).toContain("  name: string;");
+      expect(result).toContain("  email?: string;");
+      expect(result).toContain("}");
+    });
+
+    it("should generate endpoints with operations", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [],
+        endpoints: [
+          {
+            name: "listUsers",
+            method: "get",
+            path: "/users",
+            description: "List all users",
+            responses: [{ statusCode: 200, type: "User[]" }],
+            tags: ["Users"],
+          },
+        ],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain('@route("/api/v1/users")');
+      expect(result).toContain("namespace Users {");
+      expect(result).toContain("  /**");
+      expect(result).toContain("   * List all users");
+      expect(result).toContain("  @get");
+      expect(result).toContain('  @route("/users")');
+      expect(result).toContain("  op listUsers(): User[];");
+    });
+
+    it("should generate POST endpoint with request body", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [],
+        endpoints: [
+          {
+            name: "createUser",
+            method: "post",
+            path: "/users",
+            requestBody: { type: "CreateUserRequest" },
+            responses: [{ statusCode: 201, type: "User" }],
+            tags: ["Users"],
+          },
+        ],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("  @post");
+      expect(result).toContain("@body body: CreateUserRequest");
+      expect(result).toContain(
+        "op createUser(@body body: CreateUserRequest): User;",
+      );
+    });
+
+    it("should generate endpoint with path and query parameters", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [],
+        endpoints: [
+          {
+            name: "getUser",
+            method: "get",
+            path: "/users/{id}",
+            parameters: [
+              { name: "id", type: "string", in: "path", required: true },
+              { name: "fields", type: "string", in: "query", required: false },
+            ],
+            responses: [{ statusCode: 200, type: "User" }],
+            tags: ["Users"],
+          },
+        ],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("@path id: string");
+      expect(result).toContain("@query fields?: string");
+    });
+
+    it("should convert TypeScript types to TypeSpec types", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [
+          {
+            name: "Example",
+            properties: [
+              { name: "count", type: "number", required: true },
+              { name: "active", type: "boolean", required: true },
+              { name: "tags", type: "string[]", required: false },
+            ],
+          },
+        ],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("count: int32;");
+      expect(result).toContain("active: boolean;");
+      expect(result).toContain("tags?: string[];");
+    });
+
+    it("should disable comments when configured", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [
+          {
+            name: "User",
+            description: "A user",
+            properties: [
+              { name: "id", type: "string", required: true, description: "ID" },
+            ],
+          },
+        ],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec, { includeComments: false });
+
+      expect(result).not.toContain("/** A user */");
+      expect(result).not.toContain("/** ID */");
+      expect(result).toContain("model User {");
+      expect(result).toContain("id: string;");
+    });
+
+    it("should group endpoints by tag", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [],
+        endpoints: [
+          { name: "listUsers", method: "get", path: "/users", tags: ["Users"] },
+          {
+            name: "getUser",
+            method: "get",
+            path: "/users/{id}",
+            tags: ["Users"],
+          },
+          {
+            name: "listProducts",
+            method: "get",
+            path: "/products",
+            tags: ["Products"],
+          },
+        ],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("namespace Users {");
+      expect(result).toContain("namespace Products {");
+      expect(result.indexOf("listUsers")).toBeLessThan(
+        result.indexOf("listProducts"),
+      );
+    });
+  });
+
+  describe("generateTypeSpecFromTechSpec", () => {
+    it("should generate TypeSpec from technical specification", () => {
+      const techSpec: TechnicalSpec = {
+        title: "User Service",
+        summary: "A service for managing users",
+        generatedAt: "2026-03-14",
+        prdSource: "prd.md",
+        requirements: [],
+        architecture: {
+          overview: "REST API",
+          files: [],
+          integrationPoints: [],
+        },
+        tasks: [
+          {
+            id: "T-001",
+            title: "Create GET /users endpoint",
+            description: "Implement GET /users to list all users",
+            category: "feature",
+            complexity: "simple",
+            files: [],
+            dependencies: [],
+            acceptanceCriteria: [],
+            blockedBy: [],
+            order: 1,
+          },
+          {
+            id: "T-002",
+            title: "Create POST /users API endpoint",
+            description: "Implement POST /users to create a user",
+            category: "feature",
+            complexity: "simple",
+            files: [],
+            dependencies: [],
+            acceptanceCriteria: [],
+            blockedBy: [],
+            order: 2,
+          },
+        ],
+        risks: [],
+        dependencies: [],
+        estimatedComplexity: "simple",
+        openQuestions: [],
+        requiresHumanReview: false,
+      };
+
+      const result = generateTypeSpecFromTechSpec(techSpec);
+
+      expect(result).toContain("User Service");
+      expect(result).toContain("A service for managing users");
+      expect(result).toContain("namespace UserService;");
+    });
+
+    it("should extract API endpoints from tasks", () => {
+      const techSpec: TechnicalSpec = {
+        title: "API",
+        summary: "Test",
+        generatedAt: "2026-03-14",
+        prdSource: "prd.md",
+        requirements: [],
+        architecture: {
+          overview: "REST API",
+          files: [],
+          integrationPoints: [],
+        },
+        tasks: [
+          {
+            id: "API-001",
+            title: "User list endpoint",
+            description: "Implement GET /api/users to list users",
+            category: "feature",
+            complexity: "simple",
+            files: [],
+            dependencies: [],
+            acceptanceCriteria: [],
+            blockedBy: [],
+            order: 1,
+          },
+        ],
+        risks: [],
+        dependencies: [],
+        estimatedComplexity: "simple",
+        openQuestions: [],
+        requiresHumanReview: false,
+      };
+
+      const result = generateTypeSpecFromTechSpec(techSpec);
+
+      expect(result).toContain("@get");
+      expect(result).toContain("/api/users");
+    });
+  });
+
+  describe("validateTypeSpecSyntax", () => {
+    it("should validate correct TypeSpec", () => {
+      const content = `
+import "@typespec/http";
+using TypeSpec.Http;
+
+namespace Api;
+
+model User {
+  id: string;
+}
+`;
+
+      const result = validateTypeSpecSyntax(content);
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it("should detect unbalanced braces", () => {
+      const content = `
+namespace Api;
+
+model User {
+  id: string;
+`;
+
+      const result = validateTypeSpecSyntax(content);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("braces"))).toBe(true);
+    });
+
+    it("should detect unbalanced parentheses", () => {
+      const content = `
+namespace Api;
+
+@route("/users"
+op listUsers(): void;
+`;
+
+      const result = validateTypeSpecSyntax(content);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("parentheses"))).toBe(true);
+    });
+
+    it("should detect missing imports for decorators", () => {
+      const content = `
+@service({
+  title: "API",
+})
+namespace Api;
+`;
+
+      const result = validateTypeSpecSyntax(content);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("imports"))).toBe(true);
+    });
+
+    it("should detect missing namespace", () => {
+      const content = `
+import "@typespec/http";
+
+model User {
+  id: string;
+}
+`;
+
+      const result = validateTypeSpecSyntax(content);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("namespace"))).toBe(true);
+    });
+
+    it("should detect unclosed strings", () => {
+      const content = `
+namespace Api;
+
+@route("/users)
+op listUsers(): void;
+`;
+
+      const result = validateTypeSpecSyntax(content);
+
+      expect(result.valid).toBe(false);
+      expect(result.errors.some((e) => e.includes("string"))).toBe(true);
+    });
+  });
+
+  describe("extractApiTasks", () => {
+    it("should extract tasks with API in title", () => {
+      const tasks: TechnicalTask[] = [
+        {
+          id: "T-001",
+          title: "Create API endpoint",
+          description: "Create the endpoint",
+          category: "feature",
+          complexity: "simple",
+          files: [],
+          dependencies: [],
+          acceptanceCriteria: [],
+          blockedBy: [],
+          order: 1,
+        },
+        {
+          id: "T-002",
+          title: "Add database migration",
+          description: "Migrate the database",
+          category: "infrastructure",
+          complexity: "simple",
+          files: [],
+          dependencies: [],
+          acceptanceCriteria: [],
+          blockedBy: [],
+          order: 2,
+        },
+      ];
+
+      const result = extractApiTasks(tasks);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]?.id).toBe("T-001");
+    });
+
+    it("should extract tasks with endpoint in title", () => {
+      const tasks: TechnicalTask[] = [
+        {
+          id: "T-001",
+          title: "Create user endpoint",
+          description: "Create endpoint for users",
+          category: "feature",
+          complexity: "simple",
+          files: [],
+          dependencies: [],
+          acceptanceCriteria: [],
+          blockedBy: [],
+          order: 1,
+        },
+      ];
+
+      const result = extractApiTasks(tasks);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("should extract tasks with route in title", () => {
+      const tasks: TechnicalTask[] = [
+        {
+          id: "T-001",
+          title: "Add user route",
+          description: "Add route for user management",
+          category: "feature",
+          complexity: "simple",
+          files: [],
+          dependencies: [],
+          acceptanceCriteria: [],
+          blockedBy: [],
+          order: 1,
+        },
+      ];
+
+      const result = extractApiTasks(tasks);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("should extract tasks with HTTP method in description", () => {
+      const tasks: TechnicalTask[] = [
+        {
+          id: "T-001",
+          title: "User management",
+          description: "Implement GET /users and POST /users",
+          category: "feature",
+          complexity: "simple",
+          files: [],
+          dependencies: [],
+          acceptanceCriteria: [],
+          blockedBy: [],
+          order: 1,
+        },
+      ];
+
+      const result = extractApiTasks(tasks);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("should extract tasks with REST in description", () => {
+      const tasks: TechnicalTask[] = [
+        {
+          id: "T-001",
+          title: "User CRUD",
+          description: "Implement REST operations for users",
+          category: "feature",
+          complexity: "simple",
+          files: [],
+          dependencies: [],
+          acceptanceCriteria: [],
+          blockedBy: [],
+          order: 1,
+        },
+      ];
+
+      const result = extractApiTasks(tasks);
+
+      expect(result).toHaveLength(1);
+    });
+
+    it("should return empty array when no API tasks", () => {
+      const tasks: TechnicalTask[] = [
+        {
+          id: "T-001",
+          title: "Add unit tests",
+          description: "Add tests for user service",
+          category: "testing",
+          complexity: "simple",
+          files: [],
+          dependencies: [],
+          acceptanceCriteria: [],
+          blockedBy: [],
+          order: 1,
+        },
+      ];
+
+      const result = extractApiTasks(tasks);
+
+      expect(result).toHaveLength(0);
+    });
+  });
+
+  describe("Edge Cases", () => {
+    it("should handle spec with no endpoints", () => {
+      const spec: ApiSpecification = {
+        title: "Types Only",
+        types: [
+          {
+            name: "User",
+            properties: [{ name: "id", type: "string", required: true }],
+          },
+        ],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("model User {");
+      expect(result).not.toContain("@route");
+    });
+
+    it("should handle spec with no types", () => {
+      const spec: ApiSpecification = {
+        title: "Endpoints Only",
+        types: [],
+        endpoints: [
+          { name: "health", method: "get", path: "/health", tags: ["System"] },
+        ],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("op health");
+      expect(result).not.toContain("model ");
+    });
+
+    it("should handle endpoint without tags", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [],
+        endpoints: [{ name: "health", method: "get", path: "/health" }],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("namespace Api {");
+      expect(result).toContain("op health");
+    });
+
+    it("should handle empty API specification", () => {
+      const spec: ApiSpecification = {
+        title: "Empty API",
+        types: [],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain('title: "Empty API"');
+      expect(result).toContain("namespace Api;");
+    });
+
+    it("should handle types with empty properties", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [
+          {
+            name: "EmptyModel",
+            properties: [],
+          },
+        ],
+        endpoints: [],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("model EmptyModel {");
+      expect(result).toContain("}");
+    });
+
+    it("should handle endpoint with void response", () => {
+      const spec: ApiSpecification = {
+        title: "API",
+        types: [],
+        endpoints: [
+          {
+            name: "deleteUser",
+            method: "delete",
+            path: "/users/{id}",
+            tags: ["Users"],
+          },
+        ],
+      };
+
+      const result = generateTypeSpec(spec);
+
+      expect(result).toContain("@delete");
+      expect(result).toContain("op deleteUser(): void;");
+    });
+  });
+});

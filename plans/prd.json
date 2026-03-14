@@ -1,150 +1,104 @@
 {
   "repo": "kiranpraneeth/archon",
-  "branchName": "feature/agentic-sdlc",
-  "verifyCommand": "npm run typecheck && npm run test:run",
+  "mode": "spec-driven",
+  "specFile": "specs/main.tsp",
+  "branchName": "feature/spec-driven-development",
+  "verifyCommand": "npm run verify",
   "acceptanceCriteria": [
-    "All agents implemented with >80% test coverage",
-    "Orchestrator coordinates complete SDLC workflow",
-    "Documentation updated",
-    "Verification command passes (tests + types)"
+    "TypeSpec specifications compile without errors",
+    "Generated OpenAPI matches expectations",
+    "All agents support spec-driven workflows",
+    "Code generated from specs is type-safe",
+    "Documentation reflects spec-driven approach",
+    "Verification command passes (spec + tests + types)"
   ],
   "features": [
     {
-      "id": "T-001",
-      "title": "Complete Tester Agent implementation",
+      "id": "SPEC-001",
+      "title": "TypeSpec infrastructure setup",
       "acceptanceCriteria": [
-        "src/agents/tester/index.ts implements createTesterAgent() and formatTestReport()",
-        "Test generation logic for TypeScript/Vitest",
-        "src/agents/tester/index.test.ts with >80% coverage",
-        "/test-gen command works end-to-end",
-        "All tests pass",
-        "TypeScript strict mode compliance"
+        "TypeSpec dependencies installed",
+        "specs/ directory structure created",
+        "Example API specification in specs/main.tsp",
+        "npm run spec:validate works",
+        "npm run spec:generate produces OpenAPI",
+        "Generated OpenAPI in specs/generated/"
       ],
       "priority": 1,
       "passes": true,
-      "completed_at": "2026-03-13T23:13:00Z",
-      "notes": "Agent context exists at .claude/agents/tester/CLAUDE.md"
+      "notes": "Foundation for spec-driven development - COMPLETED"
     },
     {
-      "id": "T-002",
-      "title": "Complete Documenter Agent implementation",
+      "id": "SPEC-002",
+      "title": "Update Planning Agent for TypeSpec generation",
       "acceptanceCriteria": [
-        "src/agents/documenter/index.ts with JSDoc generation",
-        "README sync and documentation gap detection",
-        "src/agents/documenter/index.test.ts with >80% coverage",
-        "/docs command works in all modes",
-        "All tests pass"
+        "Planning Agent can generate TypeSpec from requirements",
+        "Hybrid mode: detect PRD vs spec input",
+        "spec-parser.ts for parsing TypeSpec/OpenAPI",
+        "spec-generator.ts for generating TypeSpec",
+        "Tests for spec parsing and generation",
+        "Updated .claude/agents/planner/CLAUDE.md"
       ],
       "priority": 1,
       "passes": true,
-      "completed_at": "2026-03-13T23:17:00Z",
-      "notes": "Agent context exists at .claude/agents/documenter/CLAUDE.md"
+      "completed_at": "2026-03-14T11:40:00Z",
+      "notes": "Enable Planning Agent to work with specs - COMPLETED"
     },
     {
-      "id": "T-003",
-      "title": "Implement Planning Agent",
+      "id": "SPEC-003",
+      "title": "Add Development Agent code generation from specs",
       "acceptanceCriteria": [
-        "src/agents/planner/ created with PRD parsing",
-        "Technical spec generation and risk identification",
-        "Tests with >80% coverage",
-        ".claude/agents/planner/CLAUDE.md created",
-        ".claude/commands/plan.md created",
-        "All tests pass"
+        "src/agents/developer/codegen.ts implemented",
+        "Generate TypeScript types from TypeSpec",
+        "Generate API client/server scaffolds",
+        "Tests for code generation",
+        "Documentation on using codegen"
       ],
       "priority": 2,
-      "passes": true,
-      "completed_at": "2026-03-13T23:23:00Z",
-      "notes": "New agent - follow reviewer/tester pattern"
+      "passes": false,
+      "notes": "Automate code generation from specifications"
     },
     {
-      "id": "T-004",
-      "title": "Implement Development Agent",
+      "id": "SPEC-004",
+      "title": "Create TypeSpec guide documentation",
       "acceptanceCriteria": [
-        "src/agents/developer/ with code generation",
-        "Pattern detection and refactoring support",
-        "Tests with >80% coverage",
-        ".claude/agents/developer/CLAUDE.md created",
-        ".claude/commands/develop.md created",
-        "All tests pass"
+        "docs/TYPESPEC_GUIDE.md created",
+        "Explains TypeSpec basics",
+        "Shows how to write API specs",
+        "Examples from Archon codebase",
+        "Best practices for spec-driven development"
       ],
       "priority": 2,
-      "passes": true,
-      "completed_at": "2026-03-13T23:27:00Z",
-      "notes": "Most complex agent - needs careful design"
+      "passes": false,
+      "notes": "User guide for writing specifications"
     },
     {
-      "id": "T-005",
-      "title": "Implement Deployment Agent",
+      "id": "SPEC-005",
+      "title": "Update SDLC documentation for spec-driven workflows",
       "acceptanceCriteria": [
-        "src/agents/deployer/ with build automation",
-        "Release notes and git tagging",
-        "Tests with >80% coverage",
-        ".claude/agents/deployer/CLAUDE.md created",
-        "All tests pass"
+        "docs/SPEC_DRIVEN_SDLC.md created",
+        "Updated docs/SDLC_ROADMAP.md",
+        "Updated docs/AGENTS.md with spec workflows",
+        "README.md mentions spec-driven development",
+        "Examples of spec → code → test workflow"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Document the new spec-driven approach"
+    },
+    {
+      "id": "SPEC-006",
+      "title": "Ralph Loop spec-driven mode integration",
+      "acceptanceCriteria": [
+        "Ralph Loop detects spec.json vs prd.json",
+        "Uses spec:validate in verification for spec mode",
+        "Creates spec.json format documentation",
+        "Example spec-driven Ralph Loop run",
+        "Both modes work side-by-side"
       ],
       "priority": 3,
-      "passes": true,
-      "completed_at": "2026-03-13T23:32:00Z",
-      "notes": "Operations agent - automation focus"
-    },
-    {
-      "id": "T-006",
-      "title": "Implement Monitoring Agent",
-      "acceptanceCriteria": [
-        "src/agents/monitor/ with metrics tracking",
-        "Error aggregation and analytics",
-        "Tests with >80% coverage",
-        ".claude/agents/monitor/CLAUDE.md created",
-        "All tests pass"
-      ],
-      "priority": 3,
-      "passes": true,
-      "completed_at": "2026-03-13T23:37:00Z",
-      "notes": "Observability agent - closes the feedback loop"
-    },
-    {
-      "id": "T-007",
-      "title": "Build SDLC Orchestrator",
-      "acceptanceCriteria": [
-        "src/orchestrator/ with workflow state machine",
-        "Agent handoff and context passing logic",
-        "Human checkpoints and failure recovery",
-        "Tests with >80% coverage",
-        ".claude/commands/sdlc-run.md created",
-        "All tests pass"
-      ],
-      "priority": 1,
-      "passes": true,
-      "completed_at": "2026-03-13T23:43:00Z",
-      "notes": "Core component - ties all agents together"
-    },
-    {
-      "id": "T-008",
-      "title": "Add integration tests",
-      "acceptanceCriteria": [
-        "tests/integration/ created",
-        "Test complete SDLC workflow",
-        "Test agent communication",
-        "All integration tests pass"
-      ],
-      "priority": 2,
-      "passes": true,
-      "completed_at": "2026-03-13T23:48:00Z",
-      "notes": "Validates end-to-end system behavior"
-    },
-    {
-      "id": "T-009",
-      "title": "Update documentation",
-      "acceptanceCriteria": [
-        "README.md updated with all agents",
-        "docs/AGENTS.md updated",
-        "docs/SDLC_WORKFLOW.md created",
-        "Playbook updated with patterns"
-      ],
-      "priority": 2,
-      "passes": true,
-      "completed_at": "2026-03-13T23:52:00Z",
-      "notes": "Critical for adoption"
+      "passes": false,
+      "notes": "Enable Ralph Loop for spec-driven projects"
     }
   ]
 }
