@@ -1,7 +1,7 @@
 ---
 description: Start an autonomous Ralph loop for iterative development
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep, TaskCreate, TaskUpdate, TaskList
-argument-hint: "<task>" | --next [--same-session] [--screenshots] [--branch NAME] [--max-iterations N] [--verbose] [--monitor] [--dry-run]
+argument-hint: "<task>" | --next [--same-session] [--screenshots] [--branch NAME] [--max-iterations N] [--verbose] [--monitor] [--dry-run] [--spec-mode|--prd-mode]
 ---
 
 # Ralph Loop - Autonomous Development
@@ -17,7 +17,7 @@ Start an autonomous iteration loop that continues until the task is complete or 
 ## Arguments
 
 - `$ARGUMENTS` - The task description OR flags
-- `--next` - Auto-pick the next failing task from prd.json (enables multi-task mode, uses fresh-context by default)
+- `--next` - Auto-pick the next failing task from task file (enables multi-task mode, uses fresh-context by default)
 - `--same-session` - Use same-session mode instead of fresh-context (opt-in for --next)
 - `--screenshots` - Capture visual screenshots via Playwright MCP for UI regression review (advisory, non-blocking)
 - `--branch NAME` - Create/checkout branch before starting (e.g., `ralph/backlog` or `feature/task-name`)
@@ -26,6 +26,9 @@ Start an autonomous iteration loop that continues until the task is complete or 
 - `--monitor` or `-m` - Auto-open status dashboard in new Terminal window (macOS)
 - `--completion-promise TEXT` - Completion signal (default: COMPLETE)
 - `--dry-run` - Preview the prompt without starting the loop
+- `--spec-mode` - Force spec-driven mode (uses plans/spec.json)
+- `--prd-mode` - Force PRD-driven mode (uses plans/prd.json)
+- `--task-file PATH` - Use a specific task file
 
 ## Usage Examples
 
@@ -57,7 +60,45 @@ Start an autonomous iteration loop that continues until the task is complete or 
 
 # Preview what would run
 /ralph-loop --next --dry-run
+
+# Spec-driven mode (API-first development)
+/ralph-loop --next --spec-mode
+/ralph-loop --next --spec-mode --verbose --monitor
+
+# PRD-driven mode (legacy)
+/ralph-loop --next --prd-mode
 ```
+
+## Development Modes
+
+Ralph Loop supports two development modes:
+
+### Spec-Driven Mode (Recommended for APIs)
+
+Uses `plans/spec.json` for task tracking. Best for:
+- API-first development with TypeSpec
+- Projects with formal specifications
+- Contract-driven workflows
+
+Features:
+- Auto-validates TypeSpec before each iteration
+- Prepends `npm run spec:validate` to verification
+- Tracks spec-related tasks
+
+### PRD-Driven Mode (Legacy)
+
+Uses `plans/prd.json` for task tracking. Best for:
+- Traditional requirements-based development
+- Non-API projects
+- Internal tooling
+
+### Auto-Detection
+
+By default, Ralph Loop auto-detects which mode to use:
+1. If `plans/spec.json` exists with `"mode": "spec-driven"` → Spec mode
+2. Otherwise uses `plans/prd.json` → PRD mode
+
+See [docs/SPEC_JSON_FORMAT.md](../docs/SPEC_JSON_FORMAT.md) for spec.json format details.
 
 ## Instructions
 

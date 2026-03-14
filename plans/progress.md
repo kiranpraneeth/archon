@@ -694,3 +694,60 @@ Task: Build complete agentic SDLC platform
 - TypeScript compiles with strict mode
 
 ---
+
+## 2026-03-14 - SPEC-006: Ralph Loop Spec-Driven Mode Integration
+
+### Task: Integrate spec-driven mode into Ralph Loop
+
+**What was implemented:**
+- Updated `scripts/ralph/ralph.sh` with:
+  - Auto-detection of spec.json vs prd.json task files
+  - New `--spec-mode` flag to force spec-driven mode
+  - New `--prd-mode` flag to force PRD-driven mode
+  - New `--task-file PATH` flag for custom task files
+  - Automatic prepending of `npm run spec:validate` to verification in spec mode
+  - Updated status output to include mode and task file info
+  - Replaced all `PRD_FILE` references with generic `TASK_FILE`
+- Created `docs/SPEC_JSON_FORMAT.md` with:
+  - Complete spec.json format documentation
+  - Field descriptions and requirements
+  - Auto-detection explanation
+  - Examples of spec.json usage
+  - Comparison with prd.json
+  - Migration guide
+- Updated `.claude/commands/ralph-loop.md` with:
+  - New `--spec-mode`, `--prd-mode`, `--task-file` arguments
+  - Development modes section explaining both modes
+  - Auto-detection documentation
+  - Examples of spec-driven usage
+- Updated `docs/SPEC_DRIVEN_DEVELOPMENT.md` with:
+  - Accurate Ralph Loop integration section
+  - Auto-detection explanation
+  - Examples for both modes
+  - Link to SPEC_JSON_FORMAT.md
+
+**Files created:**
+- docs/SPEC_JSON_FORMAT.md
+
+**Files modified:**
+- scripts/ralph/ralph.sh
+- .claude/commands/ralph-loop.md
+- docs/SPEC_DRIVEN_DEVELOPMENT.md
+- plans/prd.json
+
+**Key design decisions:**
+- Auto-detection prefers spec.json if it has `"mode": "spec-driven"`
+- Spec validation is automatically prepended (not replaced) to preserve existing verification
+- Both modes can coexist - spec.json for API work, prd.json for other tasks
+- Status file now includes mode information for monitoring
+
+**Learnings:**
+- jq boolean handling requires `--argjson` not `--arg` for proper JSON
+- Conditional prepending of spec validation preserves flexibility
+
+**Verification:**
+- All 673 tests pass
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+
+---

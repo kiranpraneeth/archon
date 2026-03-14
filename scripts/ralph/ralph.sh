@@ -29,8 +29,16 @@ set -euo pipefail
 #   Go: "go test ./... && go vet ./..."
 VERIFY_COMMAND="pnpm verify"
 
-# Context files location (relative to project root)
+# Task file detection (spec.json or prd.json)
+# The script will auto-detect which file to use:
+#   - plans/spec.json (spec-driven mode): API-first development with TypeSpec
+#   - plans/prd.json (PRD-driven mode): Traditional requirements-based development
+# You can also force a specific file with --task-file <path>
+SPEC_FILE="plans/spec.json"
 PRD_FILE="plans/prd.json"
+TASK_FILE=""  # Auto-detect if empty
+
+# Context files location (relative to project root)
 PROGRESS_FILE="plans/progress.md"
 GUARDRAILS_FILE="plans/guardrails.md"
 
@@ -43,6 +51,7 @@ BRANCH=""
 VERBOSE=false
 MONITOR=false
 SCREENSHOT=false
+SPEC_MODE=false  # Auto-detected based on which task file is found
 STATE_FILE=".claude/ralph-state.local.md"
 RUNS_DIR="scripts/ralph/runs"
 STATUS_FILE=".claude/ralph-status.local.json"
@@ -81,9 +90,24 @@ while [[ $# -gt 0 ]]; do
       SCREENSHOT=true
       shift
       ;;
+    --task-file)
+      TASK_FILE="$2"
+      shift 2
+      ;;
+    --spec-mode)
+      # Force spec-driven mode
+      SPEC_MODE=true
+      shift
+      ;;
+    --prd-mode)
+      # Force PRD-driven mode
+      SPEC_MODE=false
+      TASK_FILE="$PRD_FILE"
+      shift
+      ;;
     *)
       echo "Unknown option: $1"
-      echo "Usage: ./ralph.sh [--max-iterations N] [--branch NAME] [--verbose|-v] [--monitor|-m] [--screenshot|-s]"
+      echo "Usage: ./ralph.sh [--max-iterations N] [--branch NAME] [--verbose|-v] [--monitor|-m] [--screenshot|-s] [--task-file PATH] [--spec-mode|--prd-mode]"
       exit 1
       ;;
   esac
@@ -156,11 +180,15 @@ update_status() {
     --argjson total_cache_read "$TOTAL_CACHE_READ" \
     --argjson total_cache_write "$TOTAL_CACHE_WRITE" \
     --arg total_cost_usd "$TOTAL_COST_USD" \
+    --argjson spec_mode "$SPEC_MODE" \
+    --arg task_file "$TASK_FILE" \
     '{
       run_id: $run_id,
       iteration: $iteration,
       max_iterations: $max_iterations,
       status: $status,
+      mode: (if $spec_mode then "spec-driven" else "prd-driven" end),
+      task_file: $task_file,
       current_task: {
         id: $task_id,
         title: $task_title
@@ -192,10 +220,50 @@ ITERATION=0
 REMAINING_TASKS=0
 mkdir -p "$RUN_DIR"
 
+# ============================================
+# Auto-Detect Task File (spec.json vs prd.json)
+# ============================================
+
+if [ -z "$TASK_FILE" ]; then
+  # Auto-detect: prefer spec.json if it exists and has mode: "spec-driven"
+  if [ -f "$SPEC_FILE" ]; then
+    SPEC_MODE_CHECK=$(jq -r '.mode // empty' "$SPEC_FILE" 2>/dev/null || echo "")
+    if [ "$SPEC_MODE_CHECK" = "spec-driven" ]; then
+      TASK_FILE="$SPEC_FILE"
+      SPEC_MODE=true
+      log_verbose "Auto-detected spec-driven mode from $SPEC_FILE"
+    fi
+  fi
+
+  # Fall back to prd.json if spec.json not found or not spec-driven
+  if [ -z "$TASK_FILE" ] && [ -f "$PRD_FILE" ]; then
+    TASK_FILE="$PRD_FILE"
+    SPEC_MODE=false
+    log_verbose "Using PRD-driven mode from $PRD_FILE"
+  fi
+fi
+
+# Validate task file exists
+if [ -z "$TASK_FILE" ] || [ ! -f "$TASK_FILE" ]; then
+  echo "Error: No task file found. Expected one of:"
+  echo "  - $SPEC_FILE (spec-driven mode)"
+  echo "  - $PRD_FILE (PRD-driven mode)"
+  exit 1
+fi
+
+# Determine mode label for display
+if [ "$SPEC_MODE" = true ]; then
+  MODE_LABEL="Spec-Driven"
+else
+  MODE_LABEL="PRD-Driven"
+fi
+
 echo "=============================================="
 echo "Ralph Loop - Fresh Context Mode"
 echo "=============================================="
 echo "Run ID: $RUN_ID"
+echo "Mode: $MODE_LABEL"
+echo "Task File: $TASK_FILE"
 echo "Max Iterations: $MAX_ITERATIONS"
 echo "Branch: ${BRANCH:-<current>}"
 echo "Verify: $VERIFY_COMMAND"
@@ -219,12 +287,12 @@ echo ""
 log_verbose "Run directory created at $RUN_DIR"
 log_verbose "Start time: $START_TIME"
 
-# Handle branch - use from prd.json if not specified via CLI
-if [ -z "$BRANCH" ] && [ -f "$PRD_FILE" ]; then
-  PRD_BRANCH=$(jq -r '.branchName // .branch // empty' "$PRD_FILE")
-  if [ -n "$PRD_BRANCH" ]; then
-    BRANCH="$PRD_BRANCH"
-    log_verbose "Using branch from prd.json: $BRANCH"
+# Handle branch - use from task file if not specified via CLI
+if [ -z "$BRANCH" ] && [ -f "$TASK_FILE" ]; then
+  TASK_BRANCH=$(jq -r '.branchName // .branch // empty' "$TASK_FILE")
+  if [ -n "$TASK_BRANCH" ]; then
+    BRANCH="$TASK_BRANCH"
+    log_verbose "Using branch from $TASK_FILE: $BRANCH"
   fi
 fi
 
@@ -237,24 +305,29 @@ if [ -n "$BRANCH" ]; then
   echo "Working on branch: $BRANCH"
 fi
 
-# Override verify command from prd.json if verifyCommand field exists
-if [ -f "$PRD_FILE" ]; then
-  PRD_VERIFY=$(jq -r '.verifyCommand // empty' "$PRD_FILE" 2>/dev/null || echo "")
-  if [ -n "$PRD_VERIFY" ]; then
-    VERIFY_COMMAND="$PRD_VERIFY"
-    echo "Verify override from prd.json: $VERIFY_COMMAND"
+# Override verify command from task file if verifyCommand field exists
+if [ -f "$TASK_FILE" ]; then
+  TASK_VERIFY=$(jq -r '.verifyCommand // empty' "$TASK_FILE" 2>/dev/null || echo "")
+  if [ -n "$TASK_VERIFY" ]; then
+    VERIFY_COMMAND="$TASK_VERIFY"
+    echo "Verify override from $TASK_FILE: $VERIFY_COMMAND"
   fi
 fi
 
-# Check if there are tasks to work on
-if [ ! -f "$PRD_FILE" ]; then
-  echo "Error: $PRD_FILE not found"
-  exit 1
+# For spec-driven mode, prepend spec:validate to verification if not already included
+if [ "$SPEC_MODE" = true ]; then
+  if [[ "$VERIFY_COMMAND" != *"spec:validate"* ]]; then
+    # Check if spec:validate script exists in package.json
+    if jq -e '.scripts["spec:validate"]' package.json > /dev/null 2>&1; then
+      VERIFY_COMMAND="npm run spec:validate && $VERIFY_COMMAND"
+      echo "Spec-driven mode: prepending spec:validate to verification"
+    fi
+  fi
 fi
 
 # Count tasks that are incomplete AND not skipped
-REMAINING_TASKS=$(jq '[.features[] | select(.passes == false and .skip != true)] | length' "$PRD_FILE")
-SKIPPED_TASKS=$(jq '[.features[] | select(.skip == true)] | length' "$PRD_FILE")
+REMAINING_TASKS=$(jq '[.features[] | select(.passes == false and .skip != true)] | length' "$TASK_FILE")
+SKIPPED_TASKS=$(jq '[.features[] | select(.skip == true)] | length' "$TASK_FILE")
 if [ "$REMAINING_TASKS" -eq 0 ]; then
   if [ "$SKIPPED_TASKS" -gt 0 ]; then
     echo "All automatable tasks complete! ($SKIPPED_TASKS tasks skipped)"
@@ -293,7 +366,7 @@ while [ $ITERATION -lt $MAX_ITERATIONS ]; do
         else 2 end
       )
     | first
-  ' "$PRD_FILE")
+  ' "$TASK_FILE")
 
   TASK_ID=$(echo "$NEXT_TASK_JSON" | jq -r '.id // "unknown"')
   TASK_TITLE=$(echo "$NEXT_TASK_JSON" | jq -r '.title // "unknown"')
@@ -356,7 +429,7 @@ $SCREENSHOT_INSTRUCTIONS
 
 You are in a Ralph loop (fresh-context mode). **Each iteration = ONE task.**
 
-1. Read $PRD_FILE and find the first task where passes: false
+1. Read $TASK_FILE and find the first task where passes: false
 2. Read $PROGRESS_FILE for context from previous iterations
 3. Read and follow the Guardrails above - they prevent repeated mistakes
 4. Work on **ONE task** until acceptance criteria are met
@@ -386,7 +459,7 @@ EOF
   # --dangerously-skip-permissions required for non-interactive mode
   claude --print --output-format json --dangerously-skip-permissions \
     "You are in a Ralph loop (fresh-context mode). Read .claude/ralph-state.local.md for instructions, \
-     then read $PRD_FILE to find the next failing task, \
+     then read $TASK_FILE to find the next failing task, \
      and $PROGRESS_FILE for context. Follow all guardrails in the state file. \
      Complete ONE task only, run '$VERIFY_COMMAND' to verify, commit your changes, \
      and update prd.json when complete. \
@@ -464,7 +537,7 @@ EOF
   fi
 
   # Check remaining tasks (excluding skipped)
-  REMAINING_TASKS=$(jq '[.features[] | select(.passes == false and .skip != true)] | length' "$PRD_FILE")
+  REMAINING_TASKS=$(jq '[.features[] | select(.passes == false and .skip != true)] | length' "$TASK_FILE")
   echo ""
   echo "Remaining tasks: $REMAINING_TASKS"
 

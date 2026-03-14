@@ -147,28 +147,53 @@ model ReviewResult {
 
 ## Ralph Loop Integration
 
+Ralph Loop automatically detects and supports spec-driven development.
+
+### Auto-Detection
+
+When you run Ralph Loop, it checks:
+1. Does `plans/spec.json` exist with `"mode": "spec-driven"`? → Spec mode
+2. Otherwise, use `plans/prd.json` → PRD mode
+
 ### Spec-Driven Mode
 
 Create `plans/spec.json`:
 
 ```json
 {
+  "repo": "owner/repo",
   "mode": "spec-driven",
   "specFile": "specs/main.tsp",
+  "branchName": "feature/my-feature",
   "verifyCommand": "npm run verify",
-  "features": [...]
+  "features": [
+    {
+      "id": "API-001",
+      "title": "Define User model",
+      "acceptanceCriteria": ["..."],
+      "priority": 1,
+      "passes": false
+    }
+  ]
 }
 ```
 
-Run Ralph Loop in spec-driven mode:
+Run Ralph Loop:
 ```bash
+# Auto-detect mode (uses spec.json if present)
+./scripts/ralph/ralph.sh
+
+# Explicitly use spec mode
 ./scripts/ralph/ralph.sh --spec-mode
+
+# With monitoring
+./scripts/ralph/ralph.sh --spec-mode --verbose --monitor
 ```
 
-Ralph Loop will:
-1. Validate TypeSpec before each iteration
-2. Regenerate OpenAPI after changes
-3. Run full verification (spec + types + tests)
+In spec-driven mode, Ralph Loop:
+1. Automatically prepends `npm run spec:validate` to verification
+2. Validates TypeSpec specifications before each iteration
+3. Tracks spec-related tasks from spec.json
 
 ### PRD Mode (Legacy)
 
@@ -176,13 +201,32 @@ For non-API projects, use `plans/prd.json`:
 
 ```json
 {
-  "mode": "prd-driven",
-  "verifyCommand": "npm run verify:prd",
+  "verifyCommand": "npm run verify",
   "features": [...]
 }
 ```
 
-Both modes work side-by-side.
+Run in PRD mode:
+```bash
+./scripts/ralph/ralph.sh --prd-mode
+```
+
+### Both Modes Together
+
+You can have both files:
+```
+plans/
+├── spec.json   # Spec-driven tasks (API work)
+└── prd.json    # PRD-driven tasks (other work)
+```
+
+Switch between them:
+```bash
+./scripts/ralph/ralph.sh --spec-mode  # API work
+./scripts/ralph/ralph.sh --prd-mode   # Other work
+```
+
+See [SPEC_JSON_FORMAT.md](./SPEC_JSON_FORMAT.md) for complete format documentation.
 
 ## Workflow Comparison
 
