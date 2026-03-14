@@ -224,7 +224,7 @@ The `/review-with-tests` command combines multiple agents in a workflow.
 
 ## Planning Agent
 
-The Planner parses PRDs and generates technical specifications.
+The Planner parses PRDs, generates technical specifications, and supports spec-driven workflows with TypeSpec.
 
 ### Usage
 
@@ -232,9 +232,30 @@ The Planner parses PRDs and generates technical specifications.
 # Generate technical spec from a PRD
 /plan docs/PRD_FEATURE.md
 
+# Generate TypeSpec from requirements
+/plan "Create a user management API with CRUD operations"
+
+# Analyze existing TypeSpec
+/plan --analyze specs/main.tsp
+
 # Plan with specific focus
 /plan --focus architecture docs/PRD_FEATURE.md
 ```
+
+### Modes
+
+#### PRD Mode (Traditional)
+Parses markdown PRDs into technical specifications:
+- Requirements Analysis
+- Architecture decisions
+- Technical tasks
+- Risk assessment
+
+#### Spec-Driven Mode
+Works with TypeSpec specifications:
+- **Parse**: Read and analyze TypeSpec files
+- **Generate**: Create TypeSpec from natural language requirements
+- **Validate**: Check TypeSpec syntax and structure
 
 ### What It Generates
 
@@ -243,6 +264,7 @@ The Planner parses PRDs and generates technical specifications.
 - **Technical Tasks**: Ordered tasks with complexity estimates
 - **Risk Assessment**: Critical, high, medium, low severity risks
 - **Dependencies**: External services and libraries needed
+- **TypeSpec Specs**: API specifications (in spec-driven mode)
 
 ### Output Format
 
@@ -278,13 +300,21 @@ Edit `.claude/agents/planner/CLAUDE.md` to:
 
 ## Development Agent
 
-The Developer generates code and analyzes patterns.
+The Developer generates code, analyzes patterns, and supports spec-driven code generation from TypeSpec.
 
 ### Usage
 
 ```bash
 # Generate code from a technical spec
 /develop --generate specs/feature-spec.md
+
+# Generate code from TypeSpec specification
+/develop --from-spec specs/main.tsp
+
+# Generate specific artifacts from spec
+/develop --from-spec specs/main.tsp --types-only
+/develop --from-spec specs/main.tsp --client-only
+/develop --from-spec specs/main.tsp --server hono
 
 # Analyze existing code for patterns
 /develop --analyze src/core/
@@ -297,6 +327,18 @@ Creates new code based on specifications:
 - Source files with proper structure
 - Type definitions
 - Pattern adherence
+
+#### Spec-Driven Codegen Mode
+Generates code from TypeSpec/OpenAPI specifications:
+- **TypeScript Types**: Interfaces and type definitions
+- **Zod Schemas**: Runtime validation schemas
+- **API Client**: Typed fetch-based client class
+- **Server Scaffolds**: Hono, Express, or Fastify handlers
+
+Supported frameworks:
+- `hono` (default) - Modern, lightweight
+- `express` - Classic Node.js framework
+- `fastify` - High-performance alternative
 
 #### Analyze Mode
 Reviews existing code for:
@@ -483,6 +525,51 @@ By default, human approval is required at:
 ### Configuration
 
 See [SDLC Workflow Guide](./SDLC_WORKFLOW.md) for detailed configuration.
+
+---
+
+## Spec-Driven Workflows
+
+Archon agents support spec-driven development where TypeSpec specifications serve as the source of truth.
+
+### Workflow: Spec -> Code -> Test
+
+```bash
+# 1. Write or generate TypeSpec
+/plan "Create a task management API"
+# Output: specs/features/tasks.tsp
+
+# 2. Validate and generate OpenAPI
+npm run spec:validate
+npm run spec:generate
+
+# 3. Generate types and scaffolds
+/develop --from-spec specs/features/tasks.tsp
+
+# 4. Implement business logic (types are ready)
+# Edit generated server handlers
+
+# 5. Generate contract tests
+/test-gen --from-spec specs/features/tasks.tsp
+
+# 6. Review with spec compliance
+/review --spec-aware
+```
+
+### Which Agents Support Specs?
+
+| Agent | Spec Support |
+|-------|-------------|
+| **Planner** | Generate TypeSpec from requirements, parse existing specs |
+| **Developer** | Generate types, clients, servers from specs |
+| **Tester** | Generate contract tests from specs |
+| **Reviewer** | Check spec compliance in code review |
+
+### Related Documentation
+
+- [Spec-Driven SDLC](./SPEC_DRIVEN_SDLC.md) - Complete workflow guide
+- [TypeSpec Guide](./TYPESPEC_GUIDE.md) - Writing specifications
+- [Spec-Driven Development](./SPEC_DRIVEN_DEVELOPMENT.md) - Concepts and setup
 
 ---
 

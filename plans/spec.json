@@ -40,9 +40,8 @@
         "Updated .claude/agents/planner/CLAUDE.md"
       ],
       "priority": 1,
-      "passes": true,
-      "completed_at": "2026-03-14T11:40:00Z",
-      "notes": "Enable Planning Agent to work with specs - COMPLETED"
+      "passes": false,
+      "notes": "Enable Planning Agent to work with specs"
     },
     {
       "id": "SPEC-003",
@@ -55,9 +54,8 @@
         "Documentation on using codegen"
       ],
       "priority": 2,
-      "passes": true,
-      "completed_at": "2026-03-14T18:45:00Z",
-      "notes": "Code generation from TypeSpec/OpenAPI - COMPLETED"
+      "passes": false,
+      "notes": "Automate code generation from specifications"
     },
     {
       "id": "SPEC-004",
@@ -70,9 +68,8 @@
         "Best practices for spec-driven development"
       ],
       "priority": 2,
-      "passes": true,
-      "completed_at": "2026-03-14T18:48:00Z",
-      "notes": "User guide for writing specifications - COMPLETED"
+      "passes": false,
+      "notes": "User guide for writing specifications"
     },
     {
       "id": "SPEC-005",
@@ -85,9 +82,8 @@
         "Examples of spec → code → test workflow"
       ],
       "priority": 2,
-      "passes": true,
-      "completed_at": "2026-03-14T19:53:00Z",
-      "notes": "Document the new spec-driven approach - COMPLETED"
+      "passes": false,
+      "notes": "Document the new spec-driven approach"
     },
     {
       "id": "SPEC-006",
@@ -100,9 +96,8 @@
         "Both modes work side-by-side"
       ],
       "priority": 3,
-      "passes": true,
-      "completed_at": "2026-03-14T19:58:00Z",
-      "notes": "Ralph Loop now supports spec-driven mode - COMPLETED"
+      "passes": false,
+      "notes": "Enable Ralph Loop for spec-driven projects"
     }
   ]
 }

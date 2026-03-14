@@ -480,3 +480,274 @@ Task: Build complete agentic SDLC platform
 - Documentation follows existing conventions
 
 ---
+
+## 2026-03-14 - SPEC-002: Planning Agent TypeSpec Generation
+
+### Task: Update Planning Agent for TypeSpec generation
+
+**What was implemented:**
+- Created `src/agents/planner/spec-parser.ts` with:
+  - `detectSpecFormat()` to auto-detect input format (TypeSpec, OpenAPI, PRD, unknown)
+  - `parseTypeSpec()` to parse TypeSpec files into structured data (models, operations, servers)
+  - `parseOpenApi()` to parse OpenAPI specs (JSON/YAML) into same structure
+  - `parseSpec()` unified entry point for parsing any spec format
+  - Zod schemas for validation: ApiParameterSchema, ApiResponseSchema, ApiOperationSchema, ModelDefinitionSchema, ParsedSpecSchema
+  - Constants: SpecFormat, HttpMethod
+- Created `src/agents/planner/spec-generator.ts` with:
+  - `generateTypeSpec()` to generate TypeSpec from API specification input
+  - `generateTypeSpecFromTechSpec()` to generate TypeSpec from TechnicalSpec
+  - `validateTypeSpecSyntax()` for basic syntax validation
+  - `extractApiTasks()` to identify API-related tasks from planning output
+  - Zod schemas: EndpointDefinitionSchema, TypeDefinitionSchema, ApiSpecificationSchema
+  - TypeSpecGeneratorConfig type for customization
+- Created `src/agents/planner/spec-parser.test.ts` with 41 tests covering:
+  - Format detection (TypeSpec, OpenAPI, PRD, unknown)
+  - TypeSpec parsing (imports, namespaces, models, enums, servers, operations)
+  - OpenAPI parsing (JSON and YAML, servers, paths, schemas)
+  - Edge cases (empty content, complex types, multiple namespaces)
+- Created `src/agents/planner/spec-generator.test.ts` with 40 tests covering:
+  - TypeSpec generation (headers, models, enums, endpoints)
+  - Type conversion (TypeScript to TypeSpec types)
+  - Endpoint grouping by tags
+  - Syntax validation
+  - API task extraction
+- Updated `.claude/agents/planner/CLAUDE.md` with:
+  - Spec-Driven Development Mode section
+  - Input detection explanation
+  - TypeSpec generation guidelines
+  - Integration with Development Agent
+  - Programmatic API examples
+
+**Files created:**
+- src/agents/planner/spec-parser.ts
+- src/agents/planner/spec-parser.test.ts
+- src/agents/planner/spec-generator.ts
+- src/agents/planner/spec-generator.test.ts
+
+**Files modified:**
+- .claude/agents/planner/CLAUDE.md
+
+**Key design decisions:**
+- Hybrid mode: auto-detect PRD vs spec input based on content patterns
+- Parser extracts structured data that can be used for code generation
+- Generator produces valid TypeSpec with proper imports and decorators
+- Validation is lightweight (syntax check) - full validation uses TypeSpec compiler
+- Followed existing agent pattern with Zod schemas for type safety
+
+**Learnings:**
+- TypeScript strict mode requires careful handling of regex match groups (use optional chaining)
+- TypeSpec models can be empty (single line `model User {}`) - need special handling
+- @service decorator title can be on separate line - need to check multiple lines
+- Array element access in tests needs optional chaining for strict mode
+
+**Verification:**
+- All 627 tests pass (81 new spec-parser/generator tests + 546 existing)
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+- Follows existing code conventions
+
+---
+
+## 2026-03-14 - SPEC-003: Development Agent Code Generation
+
+### Task: Add Development Agent code generation from specs
+
+**What was implemented:**
+- Created `src/agents/developer/codegen.ts` with:
+  - `typeToTypeScript()` - Convert TypeSpec/OpenAPI types to TypeScript
+  - `generateTypeFromModel()` - Generate TypeScript type definitions from model schemas
+  - `generateZodSchemaFromModel()` - Generate Zod validation schemas
+  - `generateTypesFromSpec()` - Generate all types from a parsed spec
+  - `generateClientFromSpec()` - Generate typed API client class
+  - `generateServerFromSpec()` - Generate server scaffolds (Hono, Express, Fastify)
+  - `generateCodeFromSpec()` - Main entry point for full code generation
+  - `formatCodegenResult()` - Format results as markdown report
+  - Zod schemas: GeneratedTypesSchema, GeneratedClientSchema, GeneratedServerSchema, CodegenResultSchema
+  - CodegenConfig type with sensible defaults
+- Created `src/agents/developer/codegen.test.ts` with 46 tests covering:
+  - Type conversion (basic types, arrays, nullable, union, custom types)
+  - Type generation from models (objects, enums, JSDoc, readonly arrays)
+  - Zod schema generation
+  - Client generation (methods, path params, body, query params)
+  - Server generation for all three frameworks (Hono, Express, Fastify)
+  - Full codegen result generation
+  - Formatting output
+  - Edge cases (empty specs, empty models, complex paths)
+- Updated `.claude/agents/developer/CLAUDE.md` with:
+  - New "Spec-Driven Codegen" capability
+  - Detailed usage documentation
+  - Configuration options table
+  - Workflow integration with Planner Agent
+
+**Files created:**
+- src/agents/developer/codegen.ts
+- src/agents/developer/codegen.test.ts
+
+**Files modified:**
+- .claude/agents/developer/CLAUDE.md
+
+**Key design decisions:**
+- Three server frameworks supported: Hono (default), Express, Fastify
+- Optional Zod validation schema generation
+- API client uses fetch-based pattern with configurable fetch function
+- Server scaffolds include TODO placeholders for handlers
+- Path parameter conversion: `{param}` → `:param` for Express/Hono/Fastify
+- Uses spec-parser types from planner agent for input
+
+**Learnings:**
+- Case conversion helpers need to preserve camelCase for operation IDs (e.g., "getUser" → "getUser", not "getuser")
+- Route paths should be stored in the converted format (`:param`) not original format (`{param}`)
+- Multi-line JSDoc comments in generated code require flexible test assertions
+
+**Verification:**
+- All 673 tests pass (46 new codegen tests + 627 existing)
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+- Follows existing code conventions
+
+---
+
+## 2026-03-14 - SPEC-004: TypeSpec Guide Documentation
+
+### Task: Create TypeSpec guide documentation
+
+**What was implemented:**
+- Created `docs/TYPESPEC_GUIDE.md` - comprehensive user guide for writing TypeSpec specifications
+- Covers TypeSpec basics: models, enums, operations, namespaces
+- HTTP/REST section: routes, HTTP methods, path/query parameters, request bodies, response types
+- Advanced patterns: model composition, optional/nullable, default values, arrays/maps, union types, error responses
+- Documentation section: JSDoc-style comments for API documentation
+- Examples from Archon: real patterns from `specs/main.tsp` (FeedbackSeverity enum, FeedbackItem model, Review endpoints)
+- Best practices: 7 key practices for writing good specs
+- Common patterns: CRUD operations, paginated responses, nested resources, async operations
+- Validation and generation: npm scripts, verification workflow, watch mode
+
+**Files created:**
+- docs/TYPESPEC_GUIDE.md
+
+**Key decisions:**
+- Focused on TypeSpec syntax and features (complements SPEC_DRIVEN_DEVELOPMENT.md which covers workflow)
+- Included practical examples from the actual Archon codebase
+- Structured as a reference guide with table of contents
+- Covered both basic and advanced TypeSpec features
+- Links to TypeSpec official docs and playground for further learning
+
+**Verification:**
+- All 673 tests pass
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+
+---
+
+## 2026-03-14 - SPEC-005: Update SDLC Documentation for Spec-Driven Workflows
+
+### Task: Update SDLC documentation for spec-driven workflows
+
+**What was implemented:**
+- Created `docs/SPEC_DRIVEN_SDLC.md` with:
+  - Complete spec-driven SDLC cycle diagram (8 phases)
+  - Comparison table: PRD-driven vs spec-driven approaches
+  - End-to-end workflow example: Spec -> Code -> Test
+  - Running spec-driven SDLC with orchestrator and Ralph Loop
+  - Agent support matrix for spec-driven mode
+  - Best practices for spec-first development
+  - Troubleshooting guide
+- Updated `docs/SDLC_ROADMAP.md` with:
+  - Current state reflecting all completed agents and infrastructure
+  - Spec-driven development section with completed features
+  - Development modes comparison (Spec-driven vs PRD-driven)
+  - Updated SDLC phase summary table
+  - Updated agent specifications with spec capabilities
+  - Resources section linking to all spec documentation
+- Updated `docs/AGENTS.md` with:
+  - Planning Agent: Added spec-driven mode (parse, generate, validate TypeSpec)
+  - Development Agent: Added spec-driven codegen mode (types, clients, servers)
+  - New "Spec-Driven Workflows" section with workflow example
+  - Agent spec support matrix
+  - Links to related documentation
+- Updated `README.md` with:
+  - New "Spec-Driven Development" section at top
+  - Quick start commands for spec validation and code generation
+  - Added spec documentation links (TypeSpec Guide, Spec-Driven SDLC)
+
+**Files created:**
+- docs/SPEC_DRIVEN_SDLC.md
+
+**Files modified:**
+- docs/SDLC_ROADMAP.md
+- docs/AGENTS.md
+- README.md
+
+**Key decisions:**
+- SPEC_DRIVEN_SDLC.md focuses on workflow integration (different from SPEC_DRIVEN_DEVELOPMENT.md which covers concepts/setup)
+- Updated roadmap to reflect current state (all core agents completed)
+- Added practical workflow examples showing Spec -> Code -> Test
+- Structured documentation for both beginners and experienced users
+
+**Learnings:**
+- Unicode box-drawing characters in markdown require careful handling (used simpler table format instead)
+- Spec-driven documentation should clearly distinguish between concepts, setup, and workflow guides
+
+**Verification:**
+- All 673 tests pass
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+
+---
+
+## 2026-03-14 - SPEC-006: Ralph Loop Spec-Driven Mode Integration
+
+### Task: Integrate spec-driven mode into Ralph Loop
+
+**What was implemented:**
+- Updated `scripts/ralph/ralph.sh` with:
+  - Auto-detection of spec.json vs prd.json task files
+  - New `--spec-mode` flag to force spec-driven mode
+  - New `--prd-mode` flag to force PRD-driven mode
+  - New `--task-file PATH` flag for custom task files
+  - Automatic prepending of `npm run spec:validate` to verification in spec mode
+  - Updated status output to include mode and task file info
+  - Replaced all `PRD_FILE` references with generic `TASK_FILE`
+- Created `docs/SPEC_JSON_FORMAT.md` with:
+  - Complete spec.json format documentation
+  - Field descriptions and requirements
+  - Auto-detection explanation
+  - Examples of spec.json usage
+  - Comparison with prd.json
+  - Migration guide
+- Updated `.claude/commands/ralph-loop.md` with:
+  - New `--spec-mode`, `--prd-mode`, `--task-file` arguments
+  - Development modes section explaining both modes
+  - Auto-detection documentation
+  - Examples of spec-driven usage
+- Updated `docs/SPEC_DRIVEN_DEVELOPMENT.md` with:
+  - Accurate Ralph Loop integration section
+  - Auto-detection explanation
+  - Examples for both modes
+  - Link to SPEC_JSON_FORMAT.md
+
+**Files created:**
+- docs/SPEC_JSON_FORMAT.md
+
+**Files modified:**
+- scripts/ralph/ralph.sh
+- .claude/commands/ralph-loop.md
+- docs/SPEC_DRIVEN_DEVELOPMENT.md
+- plans/prd.json
+
+**Key design decisions:**
+- Auto-detection prefers spec.json if it has `"mode": "spec-driven"`
+- Spec validation is automatically prepended (not replaced) to preserve existing verification
+- Both modes can coexist - spec.json for API work, prd.json for other tasks
+- Status file now includes mode information for monitoring
+
+**Learnings:**
+- jq boolean handling requires `--argjson` not `--arg` for proper JSON
+- Conditional prepending of spec validation preserves flexibility
+
+**Verification:**
+- All 673 tests pass
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+
+---

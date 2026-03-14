@@ -11,7 +11,12 @@
     "lint:fix": "eslint src/ --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest",
-    "test:run": "vitest run"
+    "test:run": "vitest run",
+    "spec:validate": "tsp compile specs",
+    "spec:generate": "tsp compile specs --emit @typespec/openapi3",
+    "spec:watch": "tsp compile specs --watch",
+    "verify": "npm run spec:validate && npm run typecheck && npm run test:run",
+    "verify:prd": "npm run typecheck && npm run test:run"
   },
   "keywords": [
     "ai",
@@ -23,6 +28,10 @@
   "author": "Kiran",
   "license": "MIT",
   "devDependencies": {
+    "@typespec/compiler": "^0.62.0",
+    "@typespec/http": "^0.62.0",
+    "@typespec/openapi3": "^0.62.0",
+    "@typespec/rest": "^0.62.0",
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
     "@typescript-eslint/parser": "^6.0.0",

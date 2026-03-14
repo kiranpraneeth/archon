@@ -8,6 +8,24 @@
 
 Archon is a platform where AI agents handle development toil — code review, test generation, documentation — while you focus on architecture and product decisions.
 
+## Spec-Driven Development
+
+Archon supports **spec-driven development** using TypeSpec, enabling type-safe API contracts that generate code, tests, and documentation automatically.
+
+```bash
+# Write TypeSpec specification
+# specs/main.tsp
+
+# Validate and generate OpenAPI
+npm run spec:validate
+npm run spec:generate
+
+# Generate types, clients, servers from spec
+/develop --from-spec specs/main.tsp
+```
+
+Learn more: [TypeSpec Guide](./docs/TYPESPEC_GUIDE.md) | [Spec-Driven SDLC](./docs/SPEC_DRIVEN_SDLC.md)
+
 ## Features
 
 ### Agents
@@ -84,6 +102,8 @@ claude
 - [Setup Guide](./docs/SETUP.md) — Installation and configuration
 - [Agents Guide](./docs/AGENTS.md) — How to use each agent
 - [SDLC Workflow](./docs/SDLC_WORKFLOW.md) — Complete development lifecycle orchestration
+- [Spec-Driven SDLC](./docs/SPEC_DRIVEN_SDLC.md) — TypeSpec-based API development workflow
+- [TypeSpec Guide](./docs/TYPESPEC_GUIDE.md) — Writing TypeSpec specifications
 - [Hooks Guide](./docs/HOOKS.md) — Quality gate automation
 - [Architecture](./docs/ARCHITECTURE.md) — Project structure and extensibility
 - [Contributing](./CONTRIBUTING.md) — How to contribute

@@ -193,3 +193,132 @@ Before outputting a specification:
 - [ ] Open questions capture ambiguities
 - [ ] Output format matches standard
 - [ ] Human review flagged if needed
+
+---
+
+## Spec-Driven Development Mode
+
+The Planning Agent supports **hybrid mode**: it can work with both traditional PRDs and TypeSpec/OpenAPI specifications.
+
+### Input Detection
+
+The agent automatically detects input format:
+- **TypeSpec** (`.tsp` files): Contains `import "@typespec/`, `using TypeSpec.`, `@service(`, or `namespace` + `model` declarations
+- **OpenAPI** (`.yaml`/`.json`): Contains `openapi:` or `swagger:` version markers
+- **PRD** (`.md` files): Contains markdown with `## Requirements`, `## User Stories`, `FR-`, or `NFR-` markers
+
+### Working with TypeSpec
+
+When the input is a TypeSpec specification:
+
+1. **Parse the spec** using the `spec-parser` module to extract:
+   - API operations (endpoints, methods, parameters)
+   - Models and types (schemas, enums)
+   - Namespaces and structure
+   - Server configurations
+
+2. **Generate implementation tasks** based on the API contract:
+   - Model/type implementation tasks
+   - Endpoint handler tasks
+   - Validation layer tasks
+   - Test generation tasks
+
+3. **Identify gaps** between the spec and current implementation:
+   - Missing types that need to be created
+   - Missing endpoints that need handlers
+   - Type mismatches between spec and code
+
+### Generating TypeSpec from Requirements
+
+When starting from a PRD, the agent can generate TypeSpec specifications:
+
+1. **Extract API requirements** from the PRD:
+   - Identify endpoints mentioned in requirements
+   - Extract data models from user stories
+   - Determine request/response schemas
+
+2. **Generate TypeSpec** using the `spec-generator` module:
+   ```
+   /plan --output=typespec
+   ```
+
+3. **Output structure**:
+   ```typespec
+   import "@typespec/http";
+   import "@typespec/rest";
+
+   @service({ title: "Feature API" })
+   namespace FeatureApi;
+
+   model User {
+     id: string;
+     name: string;
+   }
+
+   @route("/users")
+   namespace Users {
+     @get
+     op list(): User[];
+
+     @post
+     op create(@body user: User): User;
+   }
+   ```
+
+### Spec-Driven Workflow
+
+```
+PRD → Planning Agent → TypeSpec Spec → Development Agent → Implementation
+                  ↓
+            Technical Spec (traditional output)
+```
+
+**When to use spec-first:**
+- API-heavy features
+- Cross-team contracts
+- Client/server parallel development
+- External API design
+
+**When to use PRD-first:**
+- Internal refactoring
+- Non-API features
+- Exploratory work
+
+### TypeSpec Generation Guidelines
+
+When generating TypeSpec:
+- Use descriptive model names (not abbreviations)
+- Include JSDoc comments for all models and operations
+- Group related operations in namespaces
+- Define enums for fixed sets of values
+- Use optional (`?`) only when truly optional
+- Include server decorators for dev/prod URLs
+
+### Integration with Development Agent
+
+The Development Agent can consume TypeSpec to:
+- Generate TypeScript types from models
+- Scaffold API handlers from operations
+- Create validation schemas from specs
+- Generate client SDKs
+
+Pass the spec to the Development Agent:
+```
+/develop --from-spec=specs/feature.tsp
+```
+
+### Programmatic API
+
+```typescript
+import { parseSpec, detectSpecFormat } from "@/agents/planner/spec-parser";
+import { generateTypeSpec, generateTypeSpecFromTechSpec } from "@/agents/planner/spec-generator";
+
+// Parse existing spec
+const parsed = parseSpec(specContent, "api.tsp");
+console.log(parsed.operations);  // API endpoints
+console.log(parsed.models);      // Type definitions
+
+// Generate spec from technical plan
+const techSpec = { title: "Feature", tasks: [...] };
+const typespec = generateTypeSpecFromTechSpec(techSpec);
+```

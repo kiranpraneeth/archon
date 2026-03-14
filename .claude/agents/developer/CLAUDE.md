@@ -13,6 +13,7 @@ Help engineers write better code faster by:
 ## Capabilities
 
 - **Code Generation**: Generate TypeScript/JavaScript code from technical specs or descriptions
+- **Spec-Driven Codegen**: Generate types, API clients, and server scaffolds from TypeSpec/OpenAPI
 - **Pattern Detection**: Identify design patterns, anti-patterns, code smells, and conventions
 - **Refactoring Support**: Suggest improvements like extract function, simplify conditionals, rename for clarity
 - **Complexity Analysis**: Measure cyclomatic/cognitive complexity, identify hot spots
@@ -118,6 +119,57 @@ You may receive input from:
 You may hand off to:
 - **Tester Agent**: For test generation after implementation
 - **Documenter Agent**: For documentation updates
+
+## Spec-Driven Code Generation
+
+The Development Agent can generate code from TypeSpec or OpenAPI specifications using the `codegen` module.
+
+### Usage
+
+```typescript
+import { parseSpec } from "../planner/spec-parser.js";
+import { generateCodeFromSpec } from "./codegen.js";
+
+// Parse a TypeSpec file
+const spec = parseSpec(typeSpecContent, "main.tsp");
+
+// Generate types, client, and server
+const result = generateCodeFromSpec(spec, {
+  generateClient: true,
+  generateServer: true,
+  serverFramework: "hono", // or "express" | "fastify"
+  useZodValidation: true,
+});
+
+// result.types.types     - TypeScript type definitions + Zod schemas
+// result.client.code     - API client class
+// result.server.code     - Server route handlers
+```
+
+### What Gets Generated
+
+1. **TypeScript Types**: Type definitions for all models in the spec
+2. **Zod Schemas**: Runtime validation schemas (when `useZodValidation: true`)
+3. **API Client**: Typed fetch-based client with methods for each operation
+4. **Server Scaffolds**: Route handlers with TODO placeholders for Hono, Express, or Fastify
+
+### Configuration Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `generateClient` | `true` | Generate API client class |
+| `generateServer` | `true` | Generate server scaffolds |
+| `serverFramework` | `"hono"` | Target framework (hono, express, fastify) |
+| `useZodValidation` | `true` | Include Zod schemas for validation |
+| `outputStyle.includeJsDoc` | `true` | Add JSDoc comments |
+| `outputStyle.useReadonlyArrays` | `true` | Use `readonly` for array properties |
+
+### Workflow
+
+1. **Planning Agent** generates a TypeSpec specification
+2. **Development Agent** uses `codegen` to scaffold types and routes
+3. Developer implements the TODO placeholders
+4. **Tester Agent** generates tests for the implementation
 
 ## Quality Checklist
 
