@@ -25,8 +25,8 @@
         "Generated OpenAPI in specs/generated/"
       ],
       "priority": 1,
-      "passes": false,
-      "notes": "Foundation for spec-driven development"
+      "passes": true,
+      "notes": "Foundation for spec-driven development - COMPLETED"
     },
     {
       "id": "SPEC-002",

@@ -15,18 +15,6 @@ using OpenAPI;
 
 @service({
   title: "Archon API",
-  version: "0.1.0",
-})
-@info({
-  description: "AI-Native Developer Experience Platform API",
-  contact: {
-    name: "Archon Team",
-    url: "https://github.com/kiranpraneeth/archon",
-  },
-  license: {
-    name: "MIT",
-    url: "https://opensource.org/licenses/MIT",
-  },
 })
 @server("https://api.archon.dev", "Production server")
 @server("http://localhost:3000", "Development server")

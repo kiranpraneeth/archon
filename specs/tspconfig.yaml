@@ -9,9 +9,3 @@ options:
     output-file: "{output-dir}/openapi.yaml"
     new-line: lf
     omit-unreachable-types: true
-
-linter:
-  extends:
-    - "@typespec/http/all"
-  rules:
-    "@typespec/http/no-unannotated-media-type": "warning"
