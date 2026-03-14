@@ -1,0 +1,103 @@
+{
+  "repo": "kiranpraneeth/archon",
+  "mode": "spec-driven",
+  "specFile": "specs/main.tsp",
+  "branchName": "feature/spec-driven-development",
+  "verifyCommand": "npm run verify",
+  "acceptanceCriteria": [
+    "TypeSpec specifications compile without errors",
+    "Generated OpenAPI matches expectations",
+    "All agents support spec-driven workflows",
+    "Code generated from specs is type-safe",
+    "Documentation reflects spec-driven approach",
+    "Verification command passes (spec + tests + types)"
+  ],
+  "features": [
+    {
+      "id": "SPEC-001",
+      "title": "TypeSpec infrastructure setup",
+      "acceptanceCriteria": [
+        "TypeSpec dependencies installed",
+        "specs/ directory structure created",
+        "Example API specification in specs/main.tsp",
+        "npm run spec:validate works",
+        "npm run spec:generate produces OpenAPI",
+        "Generated OpenAPI in specs/generated/"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Foundation for spec-driven development"
+    },
+    {
+      "id": "SPEC-002",
+      "title": "Update Planning Agent for TypeSpec generation",
+      "acceptanceCriteria": [
+        "Planning Agent can generate TypeSpec from requirements",
+        "Hybrid mode: detect PRD vs spec input",
+        "spec-parser.ts for parsing TypeSpec/OpenAPI",
+        "spec-generator.ts for generating TypeSpec",
+        "Tests for spec parsing and generation",
+        "Updated .claude/agents/planner/CLAUDE.md"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "Enable Planning Agent to work with specs"
+    },
+    {
+      "id": "SPEC-003",
+      "title": "Add Development Agent code generation from specs",
+      "acceptanceCriteria": [
+        "src/agents/developer/codegen.ts implemented",
+        "Generate TypeScript types from TypeSpec",
+        "Generate API client/server scaffolds",
+        "Tests for code generation",
+        "Documentation on using codegen"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Automate code generation from specifications"
+    },
+    {
+      "id": "SPEC-004",
+      "title": "Create TypeSpec guide documentation",
+      "acceptanceCriteria": [
+        "docs/TYPESPEC_GUIDE.md created",
+        "Explains TypeSpec basics",
+        "Shows how to write API specs",
+        "Examples from Archon codebase",
+        "Best practices for spec-driven development"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "User guide for writing specifications"
+    },
+    {
+      "id": "SPEC-005",
+      "title": "Update SDLC documentation for spec-driven workflows",
+      "acceptanceCriteria": [
+        "docs/SPEC_DRIVEN_SDLC.md created",
+        "Updated docs/SDLC_ROADMAP.md",
+        "Updated docs/AGENTS.md with spec workflows",
+        "README.md mentions spec-driven development",
+        "Examples of spec → code → test workflow"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Document the new spec-driven approach"
+    },
+    {
+      "id": "SPEC-006",
+      "title": "Ralph Loop spec-driven mode integration",
+      "acceptanceCriteria": [
+        "Ralph Loop detects spec.json vs prd.json",
+        "Uses spec:validate in verification for spec mode",
+        "Creates spec.json format documentation",
+        "Example spec-driven Ralph Loop run",
+        "Both modes work side-by-side"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "Enable Ralph Loop for spec-driven projects"
+    }
+  ]
+}

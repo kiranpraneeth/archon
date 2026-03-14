@@ -33,3 +33,13 @@ coverage/
 
 # Personal content drafts
 content/
+
+# Ralph Loop state files (local only)
+.claude/ralph-loop.local.md
+.claude/ralph-state.local.md
+.claude/ralph-status.local.json
+scripts/ralph/runs/
+
+# TypeSpec generated files
+specs/generated/
+tsp-output/
