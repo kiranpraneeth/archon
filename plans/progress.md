@@ -547,3 +547,62 @@ Task: Build complete agentic SDLC platform
 - Follows existing code conventions
 
 ---
+
+## 2026-03-14 - SPEC-003: Development Agent Code Generation
+
+### Task: Add Development Agent code generation from specs
+
+**What was implemented:**
+- Created `src/agents/developer/codegen.ts` with:
+  - `typeToTypeScript()` - Convert TypeSpec/OpenAPI types to TypeScript
+  - `generateTypeFromModel()` - Generate TypeScript type definitions from model schemas
+  - `generateZodSchemaFromModel()` - Generate Zod validation schemas
+  - `generateTypesFromSpec()` - Generate all types from a parsed spec
+  - `generateClientFromSpec()` - Generate typed API client class
+  - `generateServerFromSpec()` - Generate server scaffolds (Hono, Express, Fastify)
+  - `generateCodeFromSpec()` - Main entry point for full code generation
+  - `formatCodegenResult()` - Format results as markdown report
+  - Zod schemas: GeneratedTypesSchema, GeneratedClientSchema, GeneratedServerSchema, CodegenResultSchema
+  - CodegenConfig type with sensible defaults
+- Created `src/agents/developer/codegen.test.ts` with 46 tests covering:
+  - Type conversion (basic types, arrays, nullable, union, custom types)
+  - Type generation from models (objects, enums, JSDoc, readonly arrays)
+  - Zod schema generation
+  - Client generation (methods, path params, body, query params)
+  - Server generation for all three frameworks (Hono, Express, Fastify)
+  - Full codegen result generation
+  - Formatting output
+  - Edge cases (empty specs, empty models, complex paths)
+- Updated `.claude/agents/developer/CLAUDE.md` with:
+  - New "Spec-Driven Codegen" capability
+  - Detailed usage documentation
+  - Configuration options table
+  - Workflow integration with Planner Agent
+
+**Files created:**
+- src/agents/developer/codegen.ts
+- src/agents/developer/codegen.test.ts
+
+**Files modified:**
+- .claude/agents/developer/CLAUDE.md
+
+**Key design decisions:**
+- Three server frameworks supported: Hono (default), Express, Fastify
+- Optional Zod validation schema generation
+- API client uses fetch-based pattern with configurable fetch function
+- Server scaffolds include TODO placeholders for handlers
+- Path parameter conversion: `{param}` → `:param` for Express/Hono/Fastify
+- Uses spec-parser types from planner agent for input
+
+**Learnings:**
+- Case conversion helpers need to preserve camelCase for operation IDs (e.g., "getUser" → "getUser", not "getuser")
+- Route paths should be stored in the converted format (`:param`) not original format (`{param}`)
+- Multi-line JSDoc comments in generated code require flexible test assertions
+
+**Verification:**
+- All 673 tests pass (46 new codegen tests + 627 existing)
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+- Follows existing code conventions
+
+---

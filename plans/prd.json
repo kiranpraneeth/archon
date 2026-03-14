@@ -55,8 +55,9 @@
         "Documentation on using codegen"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": "Automate code generation from specifications"
+      "passes": true,
+      "completed_at": "2026-03-14T18:45:00Z",
+      "notes": "Code generation from TypeSpec/OpenAPI - COMPLETED"
     },
     {
       "id": "SPEC-004",
