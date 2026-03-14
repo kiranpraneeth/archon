@@ -39,6 +39,7 @@ Archon is a platform where AI agents handle development toil — code review, te
 - GitHub Action for automated PR reviews
 - Pluggable memory system for agent context
 - Playbook documenting agentic patterns
+- 16 MCP servers for external integrations (Slack, Jira, Google Workspace, etc.)
 
 ## Quick Start
 
@@ -84,6 +85,7 @@ claude
 - [Setup Guide](./docs/SETUP.md) — Installation and configuration
 - [Agents Guide](./docs/AGENTS.md) — How to use each agent
 - [SDLC Workflow](./docs/SDLC_WORKFLOW.md) — Complete development lifecycle orchestration
+- [MCP Servers](./docs/MCP_SERVERS.md) — External integrations (Slack, Jira, Google Workspace, etc.)
 - [Hooks Guide](./docs/HOOKS.md) — Quality gate automation
 - [Architecture](./docs/ARCHITECTURE.md) — Project structure and extensibility
 - [Contributing](./CONTRIBUTING.md) — How to contribute
