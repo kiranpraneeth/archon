@@ -638,3 +638,59 @@ Task: Build complete agentic SDLC platform
 - TypeScript compiles with strict mode
 
 ---
+
+## 2026-03-14 - SPEC-005: Update SDLC Documentation for Spec-Driven Workflows
+
+### Task: Update SDLC documentation for spec-driven workflows
+
+**What was implemented:**
+- Created `docs/SPEC_DRIVEN_SDLC.md` with:
+  - Complete spec-driven SDLC cycle diagram (8 phases)
+  - Comparison table: PRD-driven vs spec-driven approaches
+  - End-to-end workflow example: Spec -> Code -> Test
+  - Running spec-driven SDLC with orchestrator and Ralph Loop
+  - Agent support matrix for spec-driven mode
+  - Best practices for spec-first development
+  - Troubleshooting guide
+- Updated `docs/SDLC_ROADMAP.md` with:
+  - Current state reflecting all completed agents and infrastructure
+  - Spec-driven development section with completed features
+  - Development modes comparison (Spec-driven vs PRD-driven)
+  - Updated SDLC phase summary table
+  - Updated agent specifications with spec capabilities
+  - Resources section linking to all spec documentation
+- Updated `docs/AGENTS.md` with:
+  - Planning Agent: Added spec-driven mode (parse, generate, validate TypeSpec)
+  - Development Agent: Added spec-driven codegen mode (types, clients, servers)
+  - New "Spec-Driven Workflows" section with workflow example
+  - Agent spec support matrix
+  - Links to related documentation
+- Updated `README.md` with:
+  - New "Spec-Driven Development" section at top
+  - Quick start commands for spec validation and code generation
+  - Added spec documentation links (TypeSpec Guide, Spec-Driven SDLC)
+
+**Files created:**
+- docs/SPEC_DRIVEN_SDLC.md
+
+**Files modified:**
+- docs/SDLC_ROADMAP.md
+- docs/AGENTS.md
+- README.md
+
+**Key decisions:**
+- SPEC_DRIVEN_SDLC.md focuses on workflow integration (different from SPEC_DRIVEN_DEVELOPMENT.md which covers concepts/setup)
+- Updated roadmap to reflect current state (all core agents completed)
+- Added practical workflow examples showing Spec -> Code -> Test
+- Structured documentation for both beginners and experienced users
+
+**Learnings:**
+- Unicode box-drawing characters in markdown require careful handling (used simpler table format instead)
+- Spec-driven documentation should clearly distinguish between concepts, setup, and workflow guides
+
+**Verification:**
+- All 673 tests pass
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+
+---
