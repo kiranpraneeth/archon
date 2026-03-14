@@ -273,3 +273,50 @@ Task: Build complete agentic SDLC platform
 - Follows existing code conventions
 
 ---
+
+## 2026-03-13 - T-006: Monitoring Agent Implementation
+
+### Task: Implement Monitoring Agent
+
+**What was implemented:**
+- Created `src/agents/monitor/index.ts` with:
+  - `createMonitorAgent()` factory function
+  - `formatMetricsReport()` markdown formatter for metrics reports
+  - `formatErrorReport()` markdown formatter for error reports
+  - Zod schemas for Metric, AggregatedError, Alert, HealthCheck, MetricTrend, MetricsReport, ErrorReport
+  - Type constants: MetricType, AlertSeverity, HealthStatus, ErrorCategory, TrendDirection
+  - MonitorConfig type with sensible defaults (trackBuildMetrics, enableAlerts, retentionDays)
+- Created `src/agents/monitor/index.test.ts` with 65 tests covering:
+  - Agent creation with default and custom configs
+  - Metrics report formatting (summary, health checks, active alerts, metrics, trends)
+  - Error report formatting (summary, errors by category, top affected files, error details, recommendations)
+  - All health status icons (OK, WARN, FAIL, ?)
+  - All alert severity icons (CRITICAL, WARNING, INFO)
+  - All metric type icons (CNT, GAU, HIS, SUM)
+  - All trend direction icons (UP, DOWN, ~)
+  - All error category icons (BUILD, TEST, DEPLOY, RUNTIME, INT, SEC, PERF, CFG)
+  - Edge cases (empty sections, optional fields)
+  - Zod schema validation
+- Created `.claude/agents/monitor/CLAUDE.md` agent context
+
+**Files created:**
+- src/agents/monitor/index.ts
+- src/agents/monitor/index.test.ts
+- .claude/agents/monitor/CLAUDE.md
+
+**Key design decisions:**
+- Followed deployer agent pattern (factory + formatters + Zod schemas)
+- Two main output types: MetricsReport (for observability), ErrorReport (for error analysis)
+- Metric types: counter, gauge, histogram, summary
+- Alert severities: critical, warning, info
+- Health statuses: healthy, degraded, unhealthy, unknown
+- Error categories: build, test, deploy, runtime, integration, security, performance, configuration
+- Trend directions: up, down, stable with anomaly detection flag
+- Agent capabilities: canModifyFiles=false (read-only observability), canExecuteCommands=true (health checks), requiresHumanApproval=false (passive monitoring)
+
+**Verification:**
+- All 436 tests pass (65 new monitor tests + 371 existing)
+- TypeScript compiles with strict mode
+- Follows existing code conventions
+
+---
