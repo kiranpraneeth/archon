@@ -320,3 +320,57 @@ Task: Build complete agentic SDLC platform
 - Follows existing code conventions
 
 ---
+
+## 2026-03-13 - T-007: SDLC Orchestrator Implementation
+
+### Task: Build SDLC Orchestrator
+
+**What was implemented:**
+- Created `src/orchestrator/index.ts` with:
+  - `createOrchestrator()` factory function with configurable options
+  - `createWorkflowState()` to initialize new workflow state
+  - `getNextPhase()` and `getPreviousPhase()` for workflow navigation
+  - `getPhaseAgent()` to map phases to responsible agents
+  - `requiresCheckpoint()` for human approval gate checks
+  - `transitionPhase()` state machine transition logic with retry support
+  - `applyCheckpointApproval()` for human checkpoint handling
+  - `getWorkflowSummary()` for workflow status reporting
+  - `createHandoffMessage()` for agent-to-agent communication
+  - `formatWorkflowReport()` markdown formatter for workflow status
+  - Zod schemas for all data types (Artifact, AgentMessage, CheckpointApproval, PhaseResult, WorkflowState, WorkflowSummary)
+  - Type constants: SDLCPhase, WorkflowStatus, TransitionStatus, AgentName, ArtifactType
+  - OrchestratorConfig type with sensible defaults
+- Created `src/orchestrator/index.test.ts` with 78 tests covering:
+  - Orchestrator creation with default and custom configs
+  - Workflow state initialization and unique ID generation
+  - Phase navigation (next, previous, agent mapping)
+  - Checkpoint requirement checks
+  - Phase transitions (success, failure, retry, completion)
+  - Checkpoint approvals and rejections
+  - Workflow summaries
+  - Agent handoff message creation
+  - Workflow report formatting
+  - All Zod schema validations
+- Created `.claude/commands/sdlc-run.md` slash command documentation
+
+**Files created:**
+- src/orchestrator/index.ts
+- src/orchestrator/index.test.ts
+- .claude/commands/sdlc-run.md
+
+**Key design decisions:**
+- Followed existing agent patterns (factory + formatters + Zod schemas)
+- Workflow phases: idle -> planning -> development -> testing -> review -> deployment -> monitoring -> idle
+- Default checkpoints at: review, deployment (configurable)
+- Phase skipping supported for flexible workflows
+- Retry loop support with configurable max iterations (default: 10)
+- Auto-recovery from transient failures
+- Agent handoff via structured messages with context and artifacts
+- Agent capabilities: canModifyFiles=true (state files), canExecuteCommands=true, requiresHumanApproval=true
+
+**Verification:**
+- All 514 tests pass (78 new orchestrator tests + 436 existing)
+- TypeScript compiles with strict mode
+- Follows existing code conventions
+
+---
