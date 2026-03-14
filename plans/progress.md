@@ -418,3 +418,65 @@ Task: Build complete agentic SDLC platform
 - Follows existing test patterns
 
 ---
+
+## 2026-03-13 - T-009: Documentation Update
+
+### Task: Update documentation
+
+**What was implemented:**
+- Updated `README.md` with:
+  - All 7 agents (Reviewer, Tester, Documenter, Planner, Developer, Deployer, Monitor)
+  - Orchestration section with SDLC workflow
+  - Updated project structure showing all agent directories
+  - Test badge updated to 546 tests
+  - Link to SDLC workflow documentation
+  - Link to SDLC orchestration pattern in playbook
+- Updated `docs/AGENTS.md` with:
+  - Overview table including all agents
+  - Orchestration section (Review+Tests, SDLC workflow)
+  - Planning Agent section with usage and output format
+  - Development Agent section with generate/analyze modes
+  - Deployment Agent section with build/release/deploy outputs
+  - Monitoring Agent section with metrics/errors outputs
+  - SDLC Orchestrator section with phases and checkpoints
+- Created `docs/SDLC_WORKFLOW.md` with:
+  - Complete SDLC overview diagram
+  - Quick start and workflow commands
+  - Detailed phase documentation
+  - Human checkpoint configuration
+  - Failure handling strategies
+  - Agent handoff explanation
+  - Workflow state and persistence
+  - Best practices and troubleshooting
+  - Configuration reference
+- Created `playbook/patterns/sdlc-orchestration.md` with:
+  - State machine diagram and explanation
+  - Core concepts: workflow state, phase transitions, agent handoffs, checkpoints
+  - Phase-agent mapping
+  - Failure strategies (retry, rollback)
+  - Implementation code examples
+  - Trade-offs and when to use
+  - Variations (parallel phases, feedback loops)
+- Updated `playbook/README.md` with SDLC Orchestration pattern
+- Updated `docs/ARCHITECTURE.md` with:
+  - All 7 agent directories
+  - Orchestrator directory
+  - Integration test directory
+  - All slash commands
+
+**Files created:**
+- docs/SDLC_WORKFLOW.md
+- playbook/patterns/sdlc-orchestration.md
+
+**Files modified:**
+- README.md
+- docs/AGENTS.md
+- docs/ARCHITECTURE.md
+- playbook/README.md
+
+**Verification:**
+- All 546 tests pass
+- TypeScript compiles with strict mode
+- Documentation follows existing conventions
+
+---
