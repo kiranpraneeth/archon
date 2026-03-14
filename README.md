@@ -3,19 +3,49 @@
 > AI-Native Developer Experience Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Tests](https://img.shields.io/badge/tests-85%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-546%20passing-brightgreen)]()
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-blue)]()
 
 Archon is a platform where AI agents handle development toil — code review, test generation, documentation — while you focus on architecture and product decisions.
 
+## Spec-Driven Development
+
+Archon supports **spec-driven development** using TypeSpec, enabling type-safe API contracts that generate code, tests, and documentation automatically.
+
+```bash
+# Write TypeSpec specification
+# specs/main.tsp
+
+# Validate and generate OpenAPI
+npm run spec:validate
+npm run spec:generate
+
+# Generate types, clients, servers from spec
+/develop --from-spec specs/main.tsp
+```
+
+Learn more: [TypeSpec Guide](./docs/TYPESPEC_GUIDE.md) | [Spec-Driven SDLC](./docs/SPEC_DRIVEN_SDLC.md)
+
 ## Features
+
+### Agents
 
 | Agent | Command | What It Does |
 |-------|---------|--------------|
 | **Reviewer** | `/review` | Automated code review with severity levels |
 | **Tester** | `/test-gen` | Generate unit tests for your code |
 | **Documenter** | `/docs` | Generate JSDoc, audit documentation gaps |
-| **Orchestrator** | `/review-with-tests` | Combined review + test generation |
+| **Planner** | `/plan` | Parse PRDs and generate technical specifications |
+| **Developer** | `/develop` | Code generation with pattern detection |
+| **Deployer** | — | Build automation, release notes, git tagging |
+| **Monitor** | — | Metrics tracking and error aggregation |
+
+### Orchestration
+
+| Workflow | Command | What It Does |
+|----------|---------|--------------|
+| **Review + Tests** | `/review-with-tests` | Combined code review and test generation |
+| **SDLC Orchestrator** | `/sdlc-run` | Full SDLC workflow from planning to monitoring |
 
 **Quality Hooks** (run automatically):
 - Lint checking before edits
@@ -71,6 +101,9 @@ claude
 
 - [Setup Guide](./docs/SETUP.md) — Installation and configuration
 - [Agents Guide](./docs/AGENTS.md) — How to use each agent
+- [SDLC Workflow](./docs/SDLC_WORKFLOW.md) — Complete development lifecycle orchestration
+- [Spec-Driven SDLC](./docs/SPEC_DRIVEN_SDLC.md) — TypeSpec-based API development workflow
+- [TypeSpec Guide](./docs/TYPESPEC_GUIDE.md) — Writing TypeSpec specifications
 - [Hooks Guide](./docs/HOOKS.md) — Quality gate automation
 - [Architecture](./docs/ARCHITECTURE.md) — Project structure and extensibility
 - [Contributing](./CONTRIBUTING.md) — How to contribute
@@ -84,13 +117,22 @@ Archon is also a **learning-in-public project**. The [Playbook](./playbook/) doc
 - [Autonomous Agents](./playbook/patterns/autonomous-agents.md)
 - [Documentation Agent Pattern](./playbook/patterns/documentation-agent.md)
 - [Test Generation Pattern](./playbook/patterns/test-generation-agent.md)
+- [SDLC Orchestration Pattern](./playbook/patterns/sdlc-orchestration.md)
 
 ## Project Structure
 
 ```
 archon/
 ├── src/
-│   ├── agents/reviewer/     # Code Review Agent
+│   ├── agents/              # Agent implementations
+│   │   ├── reviewer/        # Code Review Agent
+│   │   ├── tester/          # Test Generation Agent
+│   │   ├── documenter/      # Documentation Agent
+│   │   ├── planner/         # Planning Agent
+│   │   ├── developer/       # Development Agent
+│   │   ├── deployer/        # Deployment Agent
+│   │   └── monitor/         # Monitoring Agent
+│   ├── orchestrator/        # SDLC Workflow Orchestrator
 │   ├── core/                # Shared types and schemas
 │   └── memory/              # Pluggable memory system
 ├── .claude/

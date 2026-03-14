@@ -1,0 +1,11 @@
+# TypeSpec Configuration for Archon
+# See: https://typespec.io/docs/handbook/configuration
+
+emit:
+  - "@typespec/openapi3"
+
+options:
+  "@typespec/openapi3":
+    output-file: "{output-dir}/openapi.yaml"
+    new-line: lf
+    omit-unreachable-types: true
