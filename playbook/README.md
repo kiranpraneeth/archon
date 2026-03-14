@@ -47,6 +47,7 @@ Every pattern here is battle-tested on the [Archon platform](../README.md). Noth
 | [Autonomous Agents](./patterns/autonomous-agents.md) | Running agents in CI/CD without interaction | ✅ Done |
 | [Documentation Agent](./patterns/documentation-agent.md) | One command with multiple modes | ✅ Done |
 | [Test Generation Agent](./patterns/test-generation-agent.md) | Test behavior, not implementation | ✅ Done |
+| [SDLC Orchestration](./patterns/sdlc-orchestration.md) | Complete lifecycle coordination | ✅ Done |
 | Context Hierarchy | How to structure CLAUDE.md files | 📋 Planned |
 | Human Checkpoints | Designing review gates | 📋 Planned |
 

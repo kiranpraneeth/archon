@@ -12,9 +12,15 @@ archon/
 │   │   ├── types.ts              # Agent, ReviewResult, FeedbackItem
 │   │   └── index.ts              # Re-exports
 │   ├── agents/                   # Agent implementations
-│   │   └── reviewer/             # Code Review Agent
-│   │       ├── index.ts          # createReviewAgent(), formatReviewAsMarkdown()
-│   │       └── README.md         # Agent documentation
+│   │   ├── reviewer/             # Code Review Agent
+│   │   ├── tester/               # Test Generation Agent
+│   │   ├── documenter/           # Documentation Agent
+│   │   ├── planner/              # Planning Agent
+│   │   ├── developer/            # Development Agent
+│   │   ├── deployer/             # Deployment Agent
+│   │   └── monitor/              # Monitoring Agent
+│   ├── orchestrator/             # SDLC Workflow Orchestrator
+│   │   └── index.ts              # createOrchestrator(), workflow state machine
 │   └── memory/                   # Pluggable memory system
 │       ├── types.ts              # MemoryEntry, MemoryProvider
 │       └── index.ts              # createMemoryProvider()
@@ -23,11 +29,18 @@ archon/
 │   ├── agents/                   # Agent personas
 │   │   ├── reviewer/CLAUDE.md    # Code Review Agent context
 │   │   ├── tester/CLAUDE.md      # Test Generation Agent context
-│   │   └── documenter/CLAUDE.md  # Documentation Agent context
+│   │   ├── documenter/CLAUDE.md  # Documentation Agent context
+│   │   ├── planner/CLAUDE.md     # Planning Agent context
+│   │   ├── developer/CLAUDE.md   # Development Agent context
+│   │   ├── deployer/CLAUDE.md    # Deployment Agent context
+│   │   └── monitor/CLAUDE.md     # Monitoring Agent context
 │   ├── commands/                 # Slash command definitions
 │   │   ├── review.md             # /review command
 │   │   ├── test-gen.md           # /test-gen command
 │   │   ├── docs.md               # /docs command
+│   │   ├── plan.md               # /plan command
+│   │   ├── develop.md            # /develop command
+│   │   ├── sdlc-run.md           # /sdlc-run command
 │   │   └── review-with-tests.md  # /review-with-tests command
 │   ├── hooks/                    # Quality gate scripts
 │   │   ├── lint-typescript.sh
@@ -35,6 +48,11 @@ archon/
 │   │   ├── docs-check.sh
 │   │   └── test-coverage-check.sh
 │   └── settings.json             # Hook configuration
+│
+├── tests/                        # Test files
+│   └── integration/              # Integration tests
+│       ├── sdlc-workflow.test.ts
+│       └── agent-communication.test.ts
 │
 ├── .github/workflows/            # GitHub Actions
 │   └── code-review.yml           # Automated PR review
