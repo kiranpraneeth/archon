@@ -606,3 +606,35 @@ Task: Build complete agentic SDLC platform
 - Follows existing code conventions
 
 ---
+
+## 2026-03-14 - SPEC-004: TypeSpec Guide Documentation
+
+### Task: Create TypeSpec guide documentation
+
+**What was implemented:**
+- Created `docs/TYPESPEC_GUIDE.md` - comprehensive user guide for writing TypeSpec specifications
+- Covers TypeSpec basics: models, enums, operations, namespaces
+- HTTP/REST section: routes, HTTP methods, path/query parameters, request bodies, response types
+- Advanced patterns: model composition, optional/nullable, default values, arrays/maps, union types, error responses
+- Documentation section: JSDoc-style comments for API documentation
+- Examples from Archon: real patterns from `specs/main.tsp` (FeedbackSeverity enum, FeedbackItem model, Review endpoints)
+- Best practices: 7 key practices for writing good specs
+- Common patterns: CRUD operations, paginated responses, nested resources, async operations
+- Validation and generation: npm scripts, verification workflow, watch mode
+
+**Files created:**
+- docs/TYPESPEC_GUIDE.md
+
+**Key decisions:**
+- Focused on TypeSpec syntax and features (complements SPEC_DRIVEN_DEVELOPMENT.md which covers workflow)
+- Included practical examples from the actual Archon codebase
+- Structured as a reference guide with table of contents
+- Covered both basic and advanced TypeSpec features
+- Links to TypeSpec official docs and playground for further learning
+
+**Verification:**
+- All 673 tests pass
+- TypeSpec compiles successfully
+- TypeScript compiles with strict mode
+
+---

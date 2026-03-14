@@ -70,8 +70,9 @@
         "Best practices for spec-driven development"
       ],
       "priority": 2,
-      "passes": false,
-      "notes": "User guide for writing specifications"
+      "passes": true,
+      "completed_at": "2026-03-14T18:48:00Z",
+      "notes": "User guide for writing specifications - COMPLETED"
     },
     {
       "id": "SPEC-005",
